@@ -32,11 +32,14 @@ fun MyApp() {
                 onWardrobeButtonClick = { currentView = 4}
             )
             2 -> MapView(onButtonClick = { currentView = 1 })
-            3 -> ArView(onButtonClick = { currentView = 1 })
+            3 -> ArView(onButtonClick = { currentView = 1 },
+                onBackClick = { currentView = 1 })
             4 -> WardrobeView (onButtonClick = { currentView = 1})
         }
     }
 }
+
+
 
 @Composable
 fun MainActivityView(
