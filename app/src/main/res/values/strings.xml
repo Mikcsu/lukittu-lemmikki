@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">lukittu-lemmikki</string>
 
-    <string name="google_map_api"></string>
+   <!-- <string name="google_map_api"></string> -->
 </resources>
