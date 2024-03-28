@@ -4,6 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.os.Looper
 import android.widget.Toast
@@ -24,12 +28,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.example.lukittu_lemmikki.Map
@@ -61,7 +67,6 @@ class Map : ComponentActivity() {
 
     @Composable
     fun MapView(onButtonClick: () -> Unit) {
-
 
     }
 
@@ -170,6 +175,39 @@ class Map : ComponentActivity() {
     fun LocationScreen(context: Context, currentLocation: LatLng, camerapositioState: CameraPositionState, onButtonClick: () -> Unit) {
 
 
+        val contexti = LocalContext.current
+        val sensorManager = contexti.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+
+        val sessionSteps = remember { mutableStateOf(0) }
+        val totalSteps = remember { mutableStateOf(0) }
+
+        val sensorEventListener = remember {
+            object : SensorEventListener {
+                override fun onSensorChanged(event: SensorEvent) {
+                    if (event.sensor == stepSensor) {
+                        totalSteps.value = event.values[0].toInt()
+                        sessionSteps.value++
+                    }
+                }
+
+                override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+                    // Not used
+                }
+            }
+        }
+
+        DisposableEffect(Unit) {
+            sensorManager.registerListener(
+                sensorEventListener,
+                stepSensor,
+                SensorManager.SENSOR_DELAY_UI
+            )
+            onDispose {
+                sensorManager.unregisterListener(sensorEventListener)
+            }
+        }
+
 
         val launchMultiplePermissions = rememberLauncherForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()) {
@@ -235,6 +273,21 @@ class Map : ComponentActivity() {
                 {
                     Text(text = "get your location")
                 }
+                Button(onClick = {
+                    sessionSteps.value = 0
+                    sensorManager.registerListener(sensorEventListener, stepSensor, SensorManager.SENSOR_DELAY_NORMAL)
+                    Toast.makeText(contexti, "Step counter started", Toast.LENGTH_SHORT).show()
+                }) {
+                    Text(text = "Start step counter")
+                }
+                Button(onClick = {
+                    sensorManager.unregisterListener(sensorEventListener)
+                    Toast.makeText(contexti, "Step counter stopped", Toast.LENGTH_SHORT).show()
+                }) {
+                    Text(text = "Stop Step Counter")
+                }
+                Text(text="Steps this session: ${sessionSteps.value}")
+                Text(text="Total Steps: ${totalSteps.value}")
             }
         }
     }
