@@ -71,4 +71,9 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.2.0")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.maps.android:maps-compose:2.14.0")
+
+    implementation(platform("androidx.compose:compose-bom:2023.10.01"))
+    implementation("androidx.activity:activity-compose")
+    implementation("androidx.compose.foundation:foundation")
+    implementation("androidx.compose.material:material")
 }
