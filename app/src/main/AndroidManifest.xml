@@ -2,6 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- For Step tracking -->
+    <uses-permission android:name="android.permission.BODY_SENSORS"/>
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
+
+    <!--For APP store-->
+    <uses-feature android:name="android.hardware.sensor"/>
+
+
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"

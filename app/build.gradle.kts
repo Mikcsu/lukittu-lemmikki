@@ -66,4 +66,11 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    //For Pedometer
+    implementation(platform("androidx.compose:compose-bom:2023.10.01"))
+    implementation("androidx.activity:activity-compose")
+    implementation("androidx.compose.foundation:foundation")
+    implementation("androidx.compose.material:material")
+
 }
