@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+apikey.xml
+/app/src/main/res/values/apikey.xml
