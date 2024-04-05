@@ -10,6 +10,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.os.Looper
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -29,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -175,6 +177,8 @@ class Map : ComponentActivity() {
     fun LocationScreen(context: Context, currentLocation: LatLng, camerapositioState: CameraPositionState, onButtonClick: () -> Unit) {
 
 
+
+
         val contexti = LocalContext.current
         val sensorManager = contexti.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         val stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
@@ -186,8 +190,13 @@ class Map : ComponentActivity() {
             object : SensorEventListener {
                 override fun onSensorChanged(event: SensorEvent) {
                     if (event.sensor == stepSensor) {
-                        totalSteps.value = event.values[0].toInt()
-                        sessionSteps.value++
+
+                        val stepCount = event.values[0].toInt()
+                        Log.d("StepCounter", "Step Count: $stepCount")
+
+                        totalSteps.value = stepCount
+                        sessionSteps.value += 1
+
                     }
                 }
 
@@ -286,8 +295,29 @@ class Map : ComponentActivity() {
                 }) {
                     Text(text = "Stop Step Counter")
                 }
+
                 Text(text="Steps this session: ${sessionSteps.value}")
                 Text(text="Total Steps: ${totalSteps.value}")
+
+                var progress by remember { mutableStateOf(0.0f) }
+                var level by remember { mutableStateOf(1) }
+
+                MyProgressBar(progress, level)
+
+                LaunchedEffect(key1 = totalSteps.value) {
+                    progress += 0.01f
+
+
+
+                    if (progress >= 1.0f) {
+                        progress = 0.0f
+                        level++
+                    }
+                }
+
+
+
+
             }
         }
     }
