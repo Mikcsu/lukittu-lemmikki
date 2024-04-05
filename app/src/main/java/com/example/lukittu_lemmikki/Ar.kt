@@ -12,18 +12,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidView
+import com.example.lukittu_lemmikki.CustomArView
+import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.google.ar.core.Config
-import io.github.sceneview.ar.ARScene
-import io.github.sceneview.ar.node.ArModelNode
-import io.github.sceneview.ar.node.ArNode
-import io.github.sceneview.ar.node.PlacementMode
-
+import androidx.compose.foundation.layout.Row
 
 @Composable
 fun ArView(onButtonClick: () -> Unit) {
@@ -97,3 +93,4 @@ fun ARScreen(model: String) {
         Log.e("ARLoading", "Loading model: $model")
     }
 }
+
