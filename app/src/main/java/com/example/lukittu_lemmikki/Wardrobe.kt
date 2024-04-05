@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -59,10 +60,14 @@ fun WardrobeView(onButtonClick: () -> Unit) {
                         .weight(1f)
                         .fillMaxWidth()
                 )
-                Text(text = "Wardrobe Items will be listed here")
-                Button(onClick = { showDialog = true }) {
-                    Text("Show Clothes Details")
-                }
+                Image(
+                    painter = painterResource(id = R.drawable.clothesbutton),
+                    contentDescription = "Open Clothes Display",
+                    modifier = Modifier
+                        .clickable { showDialog = true }
+                        .size(64.dp) // Set the size of your image button
+                        .padding(8.dp) // Optionally add padding around your image if needed
+                )
             }
         },
         bottomBar = {
