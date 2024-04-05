@@ -24,6 +24,8 @@ import io.github.sceneview.ar.node.ArModelNode
 import io.github.sceneview.ar.node.ArNode
 import io.github.sceneview.ar.node.PlacementMode
 
+//Note: this works now but no depth or correct models inplace
+
 
 @Composable
 fun ArView(onButtonClick: () -> Unit) {
