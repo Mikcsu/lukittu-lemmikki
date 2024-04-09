@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +38,7 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
     var dialogType by remember { mutableStateOf("none") } // "none", "clothes", "model"
 
     val modelList = listOf("dog", "burger") // Your models list
+
 
     Scaffold(
         topBar = {
@@ -55,6 +57,7 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
                     painter = painterResource(id = R.drawable.clothesbutton),
                     contentDescription = "Open Clothes Display",
                     modifier = Modifier
+
                         .clickable {
                             showDialog = true
                             dialogType = "clothes"
@@ -68,6 +71,7 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
                 }) {
                     Text("Select Model")
                 }
+
             }
         },
         bottomBar = {
@@ -81,6 +85,7 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
             }
         }
     )
+
 
     if (showDialog && dialogType == "clothes") {
         ClothesDisplay(onDismissRequest = {
@@ -150,6 +155,7 @@ fun ClothesList() {
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
+
         }
     }
 }
@@ -192,6 +198,11 @@ fun ModelList(onModelSelect: (String) -> Unit) {
                     .clickable { onModelSelect(model) }
                     .padding(8.dp)
             )
+
         }
     }
 }
+
+
+
+

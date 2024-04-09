@@ -58,7 +58,7 @@ fun ArView(model: String, onButtonClick: () -> Unit) {
         Spacer(modifier = Modifier.height(16.dp))
         // Integrate the AR Screen directly here
         ARScreen(model) // Pass the model name to ARScreen
-        Spacer(modifier = Modifier.height(16.dp))
+
     }
 }
 
