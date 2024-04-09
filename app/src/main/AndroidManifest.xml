@@ -41,7 +41,7 @@
             </intent-filter>
         </activity>
 
-
+        <!-- Ei tarvita -->
         <activity
             android:name=".Map"
             android:label="MapActivity"
