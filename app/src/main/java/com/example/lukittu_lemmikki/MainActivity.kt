@@ -12,19 +12,25 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-
-import androidx.core.content.ContextCompat.getSystemService
 import com.example.lukittu_lemmikki.ui.theme.LukittulemmikkiTheme
 
 
@@ -89,6 +95,7 @@ private fun initializeSensor(){
 @Composable
 fun MyApp(mapNavigation: MapNavigation) {
     var currentView by remember { mutableStateOf(1) }
+    var selectedModel by remember { mutableStateOf("shrek_dancing") } // Default model
 
     LukittulemmikkiTheme {
         when (currentView) {
@@ -98,8 +105,14 @@ fun MyApp(mapNavigation: MapNavigation) {
                 onWardrobeButtonClick = { currentView = 4}
             )
             2 -> helper.MapView(onButtonClick = { currentView = 1}) // Launch MapView with the callback
-            3 -> ArView(onButtonClick = { currentView = 1 })
-            4 -> WardrobeView (onButtonClick = { currentView = 1})
+            3 -> ArView(selectedModel, onButtonClick = { currentView = 1 }) // Pass the selected model to ArView
+            4 -> WardrobeView (
+                onModelSelect = { model ->
+                    selectedModel = model // Update the selected model
+                    //currentView = 3 // Switch to AR view
+                },
+                onButtonClick = { currentView = 1}
+            )
         }
     }
 }

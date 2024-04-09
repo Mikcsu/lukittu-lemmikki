@@ -30,7 +30,7 @@ import io.github.sceneview.ar.node.PlacementMode
 
 
 @Composable
-fun ArView(onButtonClick: () -> Unit) {
+fun ArView(model: String, onButtonClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -57,7 +57,7 @@ fun ArView(onButtonClick: () -> Unit) {
         }
         Spacer(modifier = Modifier.height(16.dp))
         // Integrate the AR Screen directly here
-        ARScreen("dog") // .glb file name here
+        ARScreen(model) // Pass the model name to ARScreen
         Spacer(modifier = Modifier.height(16.dp))
     }
 }

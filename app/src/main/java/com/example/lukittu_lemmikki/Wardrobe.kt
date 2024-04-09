@@ -29,12 +29,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WardrobeView(onButtonClick: () -> Unit) {
-    var showDialog by remember { mutableStateOf(false) } // State to control dialog visibility
+fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
+    var showDialog by remember { mutableStateOf(false) }
+    var dialogType by remember { mutableStateOf("none") } // "none", "clothes", "model"
+
+    val modelList = listOf("dog", "burger") // Your models list
 
     Scaffold(
         topBar = {
@@ -53,10 +55,19 @@ fun WardrobeView(onButtonClick: () -> Unit) {
                     painter = painterResource(id = R.drawable.clothesbutton),
                     contentDescription = "Open Clothes Display",
                     modifier = Modifier
-                        .clickable { showDialog = true }
-                        .size(64.dp) // Set the size of your image button
-                        .padding(8.dp) // Optionally add padding around your image if needed
+                        .clickable {
+                            showDialog = true
+                            dialogType = "clothes"
+                        }
+                        .size(64.dp)
+                        .padding(8.dp)
                 )
+                Button(onClick = {
+                    showDialog = true
+                    dialogType = "model"
+                }) {
+                    Text("Select Model")
+                }
             }
         },
         bottomBar = {
@@ -71,11 +82,28 @@ fun WardrobeView(onButtonClick: () -> Unit) {
         }
     )
 
-    // Clothes dialog
-    if (showDialog) {
-        ClothesDisplay(onDismissRequest = { showDialog = false })
+    if (showDialog && dialogType == "clothes") {
+        ClothesDisplay(onDismissRequest = {
+            showDialog = false
+            dialogType = "none"
+        })
+    }
+
+    if (showDialog && dialogType == "model") {
+        ModelDisplay(onModelSelect = { model ->
+            onModelSelect(model)
+            showDialog = false
+            dialogType = "none"
+        }, onDismissRequest = {
+            showDialog = false
+            dialogType = "none"
+        })
     }
 }
+
+// Assume you have a Composable function `ModelDisplay` similar to `ClothesDisplay`
+// that you'll implement to handle model selection logic.
+
 @Composable
 fun ClothesList() {
     // List of all images
@@ -139,4 +167,31 @@ fun ClothesDisplay(onDismissRequest: () -> Unit) {
             ClothesList()
         }
     )
+}
+@Composable
+fun ModelDisplay(onModelSelect: (String) -> Unit, onDismissRequest: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = { Text("Model Selection") },
+        text = { ModelList(onModelSelect) },
+        confirmButton = {
+            Button(onClick = onDismissRequest) { Text("Close") }
+        }
+    )
+}
+@Composable
+fun ModelList(onModelSelect: (String) -> Unit) {
+    val modelList = listOf("dog", "burger") // Add more models as needed
+
+    LazyColumn {
+        items(modelList) { model ->
+            Text(
+                text = model,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onModelSelect(model) }
+                    .padding(8.dp)
+            )
+        }
+    }
 }
