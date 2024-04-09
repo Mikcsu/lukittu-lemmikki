@@ -49,17 +49,6 @@ fun WardrobeView(onButtonClick: () -> Unit) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                AndroidView(
-                    factory = { context ->
-                        // Your AR view setup
-                        CustomArView(context).apply {
-                            // Configuration of your AR view
-                        }
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                )
                 Image(
                     painter = painterResource(id = R.drawable.clothesbutton),
                     contentDescription = "Open Clothes Display",
