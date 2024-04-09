@@ -60,10 +60,6 @@ import com.google.maps.android.compose.rememberCameraPositionState
 
 val helper = Map()
 
-
-
-
-
 class Map : ComponentActivity() {
 
 
@@ -176,9 +172,6 @@ class Map : ComponentActivity() {
     @Composable
     fun LocationScreen(context: Context, currentLocation: LatLng, camerapositioState: CameraPositionState, onButtonClick: () -> Unit) {
 
-
-
-
         val contexti = LocalContext.current
         val sensorManager = contexti.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         val stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
@@ -248,10 +241,6 @@ class Map : ComponentActivity() {
                 )
             }
 
-
-
-
-
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Bottom,
@@ -306,8 +295,6 @@ class Map : ComponentActivity() {
 
                 LaunchedEffect(key1 = totalSteps.value) {
                     progress += 0.01f
-
-
 
                     if (progress >= 1.0f) {
                         progress = 0.0f

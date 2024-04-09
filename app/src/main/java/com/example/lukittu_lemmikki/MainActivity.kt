@@ -11,14 +11,22 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+
 import androidx.core.content.ContextCompat.getSystemService
+import com.example.lukittu_lemmikki.ui.theme.LukittulemmikkiTheme
+
 
 interface MapNavigation {
     fun navigateToMap()
@@ -82,7 +90,7 @@ private fun initializeSensor(){
 fun MyApp(mapNavigation: MapNavigation) {
     var currentView by remember { mutableStateOf(1) }
 
-    MaterialTheme {
+    LukittulemmikkiTheme {
         when (currentView) {
             1 -> MainActivityView(
                 onMapButtonClick = { mapNavigation.navigateToMap() },
@@ -101,28 +109,40 @@ fun MainActivityView(
     onMapButtonClick: () -> Unit,
     onArButtonClick: () -> Unit,
     onWardrobeButtonClick: () -> Unit
-)
-{
-    Column(
-        modifier = Modifier
-            .fillMaxHeight()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
-        Text(text = "Main Activity View")
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onMapButtonClick) {
-
-            Text(text = "Switch to Map View")
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = onArButtonClick) {
-            Text(text = "Switch to Ar View")
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = onWardrobeButtonClick) {
-            Text(text = "Switch to Wardrobe View")
+        Image(
+            painter = painterResource(id = R.drawable.assaultpet),
+            contentDescription = null, // Content description is null as it's a decorative image
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.FillBounds // Scale the image to fill the bounds of the Box
+        )
+        Column(
+            modifier = Modifier.wrapContentSize(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Button(
+                onClick = onMapButtonClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Map")
+            }
+            Button(
+                onClick = onArButtonClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "AR")
+            }
+            Button(
+                onClick = onWardrobeButtonClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Wardrobe")
+            }
         }
     }
 }
