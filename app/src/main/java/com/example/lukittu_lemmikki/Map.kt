@@ -296,8 +296,6 @@ class Map : ComponentActivity() {
                 LaunchedEffect(key1 = totalSteps.value) {
                     progress += 0.01f
 
-
-
                     if (progress >= 1.0f) {
                         progress = 0.0f
                         level++
