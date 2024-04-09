@@ -4,10 +4,10 @@ import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -57,7 +57,7 @@ fun ArView(onButtonClick: () -> Unit) {
         }
         Spacer(modifier = Modifier.height(16.dp))
         // Integrate the AR Screen directly here
-        ARScreen("burger") // Assuming "burger" as the default model
+        ARScreen("dog") // .glb file name here
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
