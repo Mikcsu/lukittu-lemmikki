@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
+import com.example.lukittu_lemmikki.ui.theme.LukittulemmikkiTheme
 
 interface MapNavigation {
     fun navigateToMap()
@@ -82,7 +83,7 @@ private fun initializeSensor(){
 fun MyApp(mapNavigation: MapNavigation) {
     var currentView by remember { mutableStateOf(1) }
 
-    MaterialTheme {
+    LukittulemmikkiTheme {
         when (currentView) {
             1 -> MainActivityView(
                 onMapButtonClick = { mapNavigation.navigateToMap() },
