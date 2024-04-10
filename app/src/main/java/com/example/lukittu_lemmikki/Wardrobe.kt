@@ -29,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +36,7 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
     var dialogType by remember { mutableStateOf("none") } // "none", "clothes", "model"
 
-    val modelList = listOf("dog", "burger") // Your models list
+
 
 
     Scaffold(
@@ -113,15 +112,14 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
 fun ClothesList() {
     // List of all images
     val imageList = listOf(
-        R.drawable.projectshirt1,
-        R.drawable.projectshirt2,
-        R.drawable.projectshirt3,
-        R.drawable.projectshirt4,
         R.drawable.projectdress,
-        R.drawable.projectdress2,
-        R.drawable.projectdress3,
-        R.drawable.projectdress4,
-        R.drawable.projectshirt5
+        R.drawable.deer,
+        R.drawable.fish,
+        R.drawable.gekko,
+        R.drawable.hamster,
+        R.drawable.octopus,
+        R.drawable.monkey,
+        R.drawable.snake
         // Add more images as needed
     )
 
@@ -185,24 +183,54 @@ fun ModelDisplay(onModelSelect: (String) -> Unit, onDismissRequest: () -> Unit) 
         }
     )
 }
+data class Model(val id: Int, val name: String)
+
 @Composable
 fun ModelList(onModelSelect: (String) -> Unit) {
-    val modelList = listOf("dog", "burger") // Add more models as needed
+    // List of all model images
+    val modelList = listOf(
+        Model(R.drawable.gekko, "gekko"),
+        Model(R.drawable.deer, "deer"),
+        Model(R.drawable.fish, "fish"),
+        Model(R.drawable.hamster, "hamster"),
+        Model(R.drawable.monkey, "monkey"),
+        Model(R.drawable.octopus, "octopus"),
+        Model(R.drawable.snake, "snake")
+        // Add more images as needed
+    )
+
+    val modelRows = modelList.chunked(2)
 
     LazyColumn {
-        items(modelList) { model ->
-            Text(
-                text = model,
+        items(modelRows) { rowModels ->
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onModelSelect(model) }
-                    .padding(8.dp)
-            )
-
+                    .padding(4.dp)
+            ) {
+                for (model in rowModels) {
+                    Image(
+                        painter = painterResource(id = model.id),
+                        contentDescription = "Model item",
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(4.dp)
+                            .clickable {
+                                onModelSelect(model.name) // Pass the model name when clicked
+                                Log.d("ModelList", "Model ${model.name} clicked") // Log to console
+                            }
+                    )
+                    // Add spacer if there's more than one image in the row
+                    if (rowModels.size > 1) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
+                }
+                // If there's only one image in the row, fill the remaining space
+                if (rowModels.size == 1) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
         }
     }
 }
-
-
-
 
