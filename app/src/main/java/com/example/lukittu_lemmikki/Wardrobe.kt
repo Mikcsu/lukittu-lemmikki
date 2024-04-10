@@ -37,7 +37,7 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
     var dialogType by remember { mutableStateOf("none") } // "none", "clothes", "model"
 
-    val modelList = listOf("dog", "burger") // Your models list
+
 
 
     Scaffold(
@@ -113,15 +113,14 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
 fun ClothesList() {
     // List of all images
     val imageList = listOf(
-        R.drawable.projectshirt1,
-        R.drawable.projectshirt2,
-        R.drawable.projectshirt3,
-        R.drawable.projectshirt4,
-        R.drawable.projectdress,
-        R.drawable.projectdress2,
-        R.drawable.projectdress3,
-        R.drawable.projectdress4,
-        R.drawable.projectshirt5
+        R.drawable.Bird,
+        R.drawable.Deer,
+        R.drawable.Fish,
+        R.drawable.Gekko,
+        R.drawable.Hamster,
+        R.drawable.Octopus,
+        R.drawable.Monkey,
+        R.drawable.Snake
         // Add more images as needed
     )
 
@@ -187,7 +186,7 @@ fun ModelDisplay(onModelSelect: (String) -> Unit, onDismissRequest: () -> Unit) 
 }
 @Composable
 fun ModelList(onModelSelect: (String) -> Unit) {
-    val modelList = listOf("dog", "burger") // Add more models as needed
+    val modelList = listOf("gekko", "deer", "fish", "hamster", "monkey", "octopus", "snake") // Add more models as needed
 
     LazyColumn {
         items(modelList) { model ->
