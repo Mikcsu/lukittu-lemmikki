@@ -112,7 +112,6 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
 fun ClothesList() {
     // List of all images
     val imageList = listOf(
-        R.drawable.projectdress,
         R.drawable.deer,
         R.drawable.fish,
         R.drawable.gekko,
