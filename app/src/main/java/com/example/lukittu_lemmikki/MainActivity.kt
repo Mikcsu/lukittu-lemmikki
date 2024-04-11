@@ -99,6 +99,7 @@ fun MyApp(mapNavigation: MapNavigation) {
     var currentView by remember { mutableStateOf(1) }
     var selectedModel by remember { mutableStateOf(preferencesManager.getSelectedModel() ?: "deer") } // Default model
     var darkTheme by remember { mutableStateOf(false) } // Default theme
+    var isSkinwalkerMode by remember { mutableStateOf(preferencesManager.getSkinwalkerMode()) } // Default Skinwalker mode
 
     LukittulemmikkiTheme(darkTheme = darkTheme) {
         when (currentView) {
@@ -112,8 +113,8 @@ fun MyApp(mapNavigation: MapNavigation) {
             3 -> ArView(selectedModel, onButtonClick = { currentView = 1 }) // Pass the selected model to ArView
             4 -> WardrobeView (
                 onModelSelect = { model ->
-                    selectedModel = model // Update the selected model
-                    //currentView = 3 // Switch to AR view
+                    selectedModel = if (isSkinwalkerMode) "sw$model" else model // Update the selected model
+                    preferencesManager.saveSelectedModel(selectedModel) // Save the selected model to shared preferences
                 },
                 onButtonClick = { currentView = 1}
             )
@@ -121,7 +122,21 @@ fun MyApp(mapNavigation: MapNavigation) {
                 darkTheme = darkTheme,
                 onDarkThemeChange = { darkTheme = it },
                 selectedModel = selectedModel,
-                onModelChange = { selectedModel = it },
+                onModelChange = { model ->
+                    selectedModel = if (isSkinwalkerMode) "sw$model" else model // Update the selected model
+                    preferencesManager.saveSelectedModel(selectedModel) // Save the selected model to shared preferences
+                },
+                isSkinwalkerMode = isSkinwalkerMode,
+                onSkinwalkerModeChange = { isChecked ->
+                    isSkinwalkerMode = isChecked
+                    selectedModel = if (isChecked) {
+                        if (!selectedModel.startsWith("sw")) "sw$selectedModel" else selectedModel
+                    } else {
+                        if (selectedModel.startsWith("sw")) selectedModel.removePrefix("sw") else selectedModel
+                    }
+                    preferencesManager.saveSkinwalkerMode(isSkinwalkerMode)
+                    preferencesManager.saveSelectedModel(selectedModel) // Save the updated selected model to shared preferences
+                },
                 onMainButtonClick = { currentView = 1 }
             ) // Pass the handler to Settings
         }
