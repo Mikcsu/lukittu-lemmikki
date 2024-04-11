@@ -55,4 +55,14 @@ class PreferencesManager(context: Context) {
         editor.clear()
         editor.apply()
     }
+
+    fun saveSkinwalkerMode(isSkinwalkerMode: Boolean) {
+        val editor = sharedPreferences.edit()
+        editor.putBoolean("skinwalker_mode", isSkinwalkerMode)
+        editor.apply()
+    }
+
+    fun getSkinwalkerMode(): Boolean {
+        return sharedPreferences.getBoolean("skinwalker_mode", false)
+    }
 }
