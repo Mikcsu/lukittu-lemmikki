@@ -91,18 +91,19 @@ private fun initializeSensor(){
 }
 }
 
-
 @Composable
 fun MyApp(mapNavigation: MapNavigation) {
     var currentView by remember { mutableStateOf(1) }
     var selectedModel by remember { mutableStateOf("deer") } // Default model
+    var darkTheme by remember { mutableStateOf(false) } // Default theme
 
-    LukittulemmikkiTheme {
+    LukittulemmikkiTheme(darkTheme = darkTheme) {
         when (currentView) {
             1 -> MainActivityView(
                 onMapButtonClick = { mapNavigation.navigateToMap() },
                 onArButtonClick = { currentView = 3 },
-                onWardrobeButtonClick = { currentView = 4}
+                onWardrobeButtonClick = { currentView = 4},
+                onSettingsButtonClick = { currentView = 5 } // Add this line
             )
             2 -> helper.MapView(onButtonClick = { currentView = 1}) // Launch MapView with the callback
             3 -> ArView(selectedModel, onButtonClick = { currentView = 1 }) // Pass the selected model to ArView
@@ -113,6 +114,13 @@ fun MyApp(mapNavigation: MapNavigation) {
                 },
                 onButtonClick = { currentView = 1}
             )
+            5 -> Settings(
+                darkTheme = darkTheme,
+                onDarkThemeChange = { darkTheme = it },
+                selectedModel = selectedModel,
+                onModelChange = { selectedModel = it },
+                onMainButtonClick = { currentView = 1 }
+            ) // Pass the handler to Settings
         }
     }
 }
@@ -121,7 +129,8 @@ fun MyApp(mapNavigation: MapNavigation) {
 fun MainActivityView(
     onMapButtonClick: () -> Unit,
     onArButtonClick: () -> Unit,
-    onWardrobeButtonClick: () -> Unit
+    onWardrobeButtonClick: () -> Unit,
+    onSettingsButtonClick: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -155,6 +164,12 @@ fun MainActivityView(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Wardrobe")
+            }
+            Button(
+                onClick = onSettingsButtonClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Settings")
             }
         }
     }
