@@ -95,7 +95,7 @@ private fun initializeSensor(){
 @Composable
 fun MyApp(mapNavigation: MapNavigation) {
     var currentView by remember { mutableStateOf(1) }
-    var selectedModel by remember { mutableStateOf("shrek_dancing") } // Default model
+    var selectedModel by remember { mutableStateOf("deer") } // Default model
 
     LukittulemmikkiTheme {
         when (currentView) {
