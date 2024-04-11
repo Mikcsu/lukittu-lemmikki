@@ -46,7 +46,7 @@ fun ArView(model: String, onButtonClick: () -> Unit) {
                 onClick = onButtonClick,
                 modifier = Modifier.weight(1f)
             ) {
-                Text(text = "Switch to Main View")
+                Text(text = "Return")
             }
             Text(
                 text = "AR View",

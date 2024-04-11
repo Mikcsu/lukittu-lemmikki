@@ -79,6 +79,6 @@ fun Settings(
     }
     // Button to return to main view
     Button(onClick = onMainButtonClick) {
-        Text(text = "Return to Main")
+        Text(text = "Return")
     }
 }
