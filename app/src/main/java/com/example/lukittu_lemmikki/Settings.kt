@@ -2,17 +2,23 @@ package com.example.lukittu_lemmikki
 
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 
 
 @Composable
@@ -78,7 +84,23 @@ fun Settings(
         }
     }
     // Button to return to main view
-    Button(onClick = onMainButtonClick) {
-        Text(text = "Return to Main")
-    }
+    BackButton(onClick = onMainButtonClick)
+
+}
+
+@Composable
+fun BackButton(onClick: () -> Unit) {
+    // Load the vector drawable using painterResource
+    val vectorDrawable: Painter = painterResource(id = R.drawable.back_arrow)
+
+    // Image composable wrapped with clickable modifier
+    Image(
+        painter = vectorDrawable,
+        contentDescription = "Back",
+        modifier = Modifier
+            .clickable {
+                onClick()
+            }
+            .size(48.dp)// Adjust padding as needed
+    )
 }
