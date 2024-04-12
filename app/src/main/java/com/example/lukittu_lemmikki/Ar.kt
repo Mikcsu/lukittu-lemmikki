@@ -16,39 +16,6 @@ import io.github.sceneview.ar.node.PlacementMode
 
 //Note: this works now but no depth or correct models inplace
 
-
-/*@Composable
-fun ArView(model: String, onButtonClick: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxHeight(),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = onButtonClick,
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Switch to Main View")
-            }
-            Text(
-                text = "AR View",
-                modifier = Modifier
-                    .weight(2f)
-                    .padding(start = 8.dp) // Adjust padding as needed for visual appeal
-            )
-        }
-        //Spacer(modifier = Modifier.height(16.dp))
-        // Integrate the AR Screen directly here
-        ARScreen(model) // Pass the model name to ARScreen
-
-    }
-}*/
-
 @Composable
 fun ARScreen(model: String, onButtonClick: () -> Unit) {
     val nodes = remember {
