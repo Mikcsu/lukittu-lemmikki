@@ -98,7 +98,7 @@ fun MyApp(mapNavigation: MapNavigation) {
     val preferencesManager = PreferencesManager(context)
     var currentView by remember { mutableStateOf(1) }
     var selectedModel by remember { mutableStateOf(preferencesManager.getSelectedModel() ?: "deer") } // Default model
-    var darkTheme by remember { mutableStateOf(false) } // Default theme
+    var darkTheme by remember { mutableStateOf(preferencesManager.getDarkTheme()) } // Default theme
     var isSkinwalkerMode by remember { mutableStateOf(preferencesManager.getSkinwalkerMode()) } // Default Skinwalker mode
 
     LukittulemmikkiTheme(darkTheme = darkTheme) {
