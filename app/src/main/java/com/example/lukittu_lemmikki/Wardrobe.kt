@@ -37,8 +37,6 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
     var dialogType by remember { mutableStateOf("none") } // "none", "clothes", "model"
 
 
-
-
     Scaffold(
         topBar = {
             SmallTopAppBar(title = { Text("Wardrobe") })

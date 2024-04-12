@@ -105,7 +105,7 @@ fun MyApp(mapNavigation: MapNavigation) {
                 onWardrobeButtonClick = { currentView = 4}
             )
             2 -> helper.MapView(onButtonClick = { currentView = 1}) // Launch MapView with the callback
-            3 -> ArView(selectedModel, onButtonClick = { currentView = 1 }) // Pass the selected model to ArView
+            3 -> ARScreen(selectedModel, onButtonClick = { currentView = 1 }) // Pass the selected model to ArView
             4 -> WardrobeView (
                 onModelSelect = { model ->
                     selectedModel = model // Update the selected model
