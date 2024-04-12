@@ -113,7 +113,7 @@ fun ARScreen(model: String, onButtonClick: () -> Unit) {
     LaunchedEffect(key1 = model) {
         modelNode.value?.loadModelGlbAsync(
             glbFileLocation = "models/${model}.glb",
-            scaleToUnits = 0.8f
+            scaleToUnits = 0.5f
         ) {
             // Optionally handle completion or errors
         }

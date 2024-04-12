@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -91,28 +92,53 @@ private fun initializeSensor(){
 }
 }
 
-
 @Composable
 fun MyApp(mapNavigation: MapNavigation) {
+    val context = LocalContext.current
+    val preferencesManager = PreferencesManager(context)
     var currentView by remember { mutableStateOf(1) }
-    var selectedModel by remember { mutableStateOf("deer") } // Default model
+    var selectedModel by remember { mutableStateOf(preferencesManager.getSelectedModel() ?: "deer") } // Default model
+    var darkTheme by remember { mutableStateOf(false) } // Default theme
+    var isSkinwalkerMode by remember { mutableStateOf(preferencesManager.getSkinwalkerMode()) } // Default Skinwalker mode
 
-    LukittulemmikkiTheme {
+    LukittulemmikkiTheme(darkTheme = darkTheme) {
         when (currentView) {
             1 -> MainActivityView(
                 onMapButtonClick = { mapNavigation.navigateToMap() },
                 onArButtonClick = { currentView = 3 },
-                onWardrobeButtonClick = { currentView = 4}
+                onWardrobeButtonClick = { currentView = 4},
+                onSettingsButtonClick = { currentView = 5 } // Add this line
             )
             2 -> helper.MapView(onButtonClick = { currentView = 1}) // Launch MapView with the callback
             3 -> ARScreen(selectedModel, onButtonClick = { currentView = 1 }) // Pass the selected model to ArView
             4 -> WardrobeView (
                 onModelSelect = { model ->
-                    selectedModel = model // Update the selected model
-                    //currentView = 3 // Switch to AR view
+                    selectedModel = if (isSkinwalkerMode) "sw$model" else model // Update the selected model
+                    preferencesManager.saveSelectedModel(selectedModel) // Save the selected model to shared preferences
                 },
                 onButtonClick = { currentView = 1}
             )
+            5 -> Settings(
+                darkTheme = darkTheme,
+                onDarkThemeChange = { darkTheme = it },
+                selectedModel = selectedModel,
+                onModelChange = { model ->
+                    selectedModel = if (isSkinwalkerMode) "sw$model" else model // Update the selected model
+                    preferencesManager.saveSelectedModel(selectedModel) // Save the selected model to shared preferences
+                },
+                isSkinwalkerMode = isSkinwalkerMode,
+                onSkinwalkerModeChange = { isChecked ->
+                    isSkinwalkerMode = isChecked
+                    selectedModel = if (isChecked) {
+                        if (!selectedModel.startsWith("sw")) "sw$selectedModel" else selectedModel
+                    } else {
+                        if (selectedModel.startsWith("sw")) selectedModel.removePrefix("sw") else selectedModel
+                    }
+                    preferencesManager.saveSkinwalkerMode(isSkinwalkerMode)
+                    preferencesManager.saveSelectedModel(selectedModel) // Save the updated selected model to shared preferences
+                },
+                onMainButtonClick = { currentView = 1 }
+            ) // Pass the handler to Settings
         }
     }
 }
@@ -121,7 +147,8 @@ fun MyApp(mapNavigation: MapNavigation) {
 fun MainActivityView(
     onMapButtonClick: () -> Unit,
     onArButtonClick: () -> Unit,
-    onWardrobeButtonClick: () -> Unit
+    onWardrobeButtonClick: () -> Unit,
+    onSettingsButtonClick: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -155,6 +182,12 @@ fun MainActivityView(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Wardrobe")
+            }
+            Button(
+                onClick = onSettingsButtonClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Settings")
             }
         }
     }
