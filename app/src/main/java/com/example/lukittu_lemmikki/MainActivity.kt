@@ -110,7 +110,7 @@ fun MyApp(mapNavigation: MapNavigation) {
                 onSettingsButtonClick = { currentView = 5 } // Add this line
             )
             2 -> helper.MapView(onButtonClick = { currentView = 1}) // Launch MapView with the callback
-            3 -> ArView(selectedModel, onButtonClick = { currentView = 1 }) // Pass the selected model to ArView
+            3 -> ARScreen(selectedModel, onButtonClick = { currentView = 1 }) // Pass the selected model to ArView
             4 -> WardrobeView (
                 onModelSelect = { model ->
                     selectedModel = if (isSkinwalkerMode) "sw$model" else model // Update the selected model
