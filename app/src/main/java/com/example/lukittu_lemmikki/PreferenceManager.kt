@@ -49,4 +49,30 @@ class PreferencesManager(context: Context) {
     fun getSelectedModel(): String? {
         return sharedPreferences.getString("SelectedModel", null)
     }
+
+    fun saveDarkTheme(isDarkTheme: Boolean) {
+        val editor = sharedPreferences.edit()
+        editor.putBoolean("DarkTheme", isDarkTheme)
+        editor.apply()
+    }
+
+    fun getDarkTheme(): Boolean {
+        return sharedPreferences.getBoolean("DarkTheme", false) // Default value is false
+    }
+
+    fun reset() {
+        val editor = sharedPreferences.edit()
+        editor.clear()
+        editor.apply()
+    }
+
+    fun saveSkinwalkerMode(isSkinwalkerMode: Boolean) {
+        val editor = sharedPreferences.edit()
+        editor.putBoolean("skinwalker_mode", isSkinwalkerMode)
+        editor.apply()
+    }
+
+    fun getSkinwalkerMode(): Boolean {
+        return sharedPreferences.getBoolean("skinwalker_mode", false)
+    }
 }
