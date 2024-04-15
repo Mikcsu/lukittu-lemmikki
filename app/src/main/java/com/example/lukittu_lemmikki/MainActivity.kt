@@ -41,12 +41,39 @@ interface MapNavigation {
 
 class MainActivity : ComponentActivity(), MapNavigation {
 
+
+    private val permissions = arrayOf(
+        Manifest.permission.BODY_SENSORS,
+        Manifest.permission.ACTIVITY_RECOGNITION,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.CAMERA
+    )
+
+    private val requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+        if (permissions.all { it.value }) {
+            // All permissions are granted
+            Toast.makeText(this, "All permissions granted", Toast.LENGTH_SHORT).show()
+        } else {
+            // Not all permissions are granted
+            Toast.makeText(this, "Not all permissions granted", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private lateinit var sensorManager: SensorManager
     private var sensor: Sensor? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MyApp(mapNavigation = this)
+        }
+
+        // Check if all permissions are already granted
+        if (permissions.all { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }) {
+            // All permissions are granted, you can proceed with your functionality
+        } else {
+            // Not all permissions are granted, request the necessary permissions
+            requestPermissionsLauncher.launch(permissions)
         }
         checkSensorPermission()
     }
