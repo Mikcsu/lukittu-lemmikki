@@ -11,6 +11,9 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun MyProgressBar(progress: Float, level: Int) {
+
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
