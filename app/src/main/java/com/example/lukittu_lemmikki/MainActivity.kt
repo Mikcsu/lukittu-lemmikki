@@ -136,17 +136,16 @@ fun MyApp(mapNavigation: MapNavigation) {
                 onWardrobeButtonClick = { currentView = 4},
                 onSettingsButtonClick = { currentView = 5 } // Add this line
             )
-            2 -> helper.MapView(onButtonClick = { currentView = 1}) // Launch MapView with the callback
-            3 -> ARScreen(selectedModel, onButtonClick = { currentView = 1 }) // Pass the selected model to ArView
+            2 -> helper.MapView(onButtonClick = { currentView = 1 }, darkTheme = darkTheme) // Pass darkTheme to MapView
+            3 -> ARScreen(selectedModel, onButtonClick = { currentView = 1 }, darkTheme = darkTheme)
             4 -> WardrobeView (
                 onModelSelect = { model ->
                     selectedModel = if (isSkinwalkerMode) "sw$model" else model // Update the selected model
                     preferencesManager.saveSelectedModel(selectedModel) // Save the selected model to shared preferences
                 },
-                onButtonClick = { currentView = 1}
+                onButtonClick = { currentView = 1}, darkTheme = darkTheme
             )
             5 -> Settings(
-                darkTheme = darkTheme,
                 onDarkThemeChange = { darkTheme = it },
                 selectedModel = selectedModel,
                 onModelChange = { model ->
@@ -164,7 +163,8 @@ fun MyApp(mapNavigation: MapNavigation) {
                     preferencesManager.saveSkinwalkerMode(isSkinwalkerMode)
                     preferencesManager.saveSelectedModel(selectedModel) // Save the updated selected model to shared preferences
                 },
-                onMainButtonClick = { currentView = 1 }
+                onMainButtonClick = { currentView = 1 },
+                onSettingsButtonClick = { currentView = 5 }
             ) // Pass the handler to Settings
         }
     }

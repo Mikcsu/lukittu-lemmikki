@@ -19,6 +19,10 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
@@ -30,37 +34,37 @@ import androidx.compose.ui.unit.dp
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun Settings(
-    darkTheme: Boolean,
     onDarkThemeChange: (Boolean) -> Unit,
     selectedModel: String,
     onModelChange: (String) -> Unit,
     isSkinwalkerMode: Boolean,
     onSkinwalkerModeChange: (Boolean) -> Unit,
-    onMainButtonClick: () -> Unit
+    onMainButtonClick: () -> Unit,
+    onSettingsButtonClick: () -> Unit
 ) {
     val context = LocalContext.current
     val preferencesManager = PreferencesManager(context)
+    var darkTheme by remember { mutableStateOf(preferencesManager.getDarkTheme()) }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(title = { Text("Settings") },
                 navigationIcon = {
-                    BackButton(onClick = onMainButtonClick)
+                    BackButton(darkTheme, onClick = onMainButtonClick)
                 })
         },
         content = {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
                     // Dark theme switch
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = "Dark Theme")
                         Switch(
                             checked = darkTheme,
                             onCheckedChange = { isChecked ->
+                                darkTheme = isChecked
                                 onDarkThemeChange(isChecked)
                                 preferencesManager.saveDarkTheme(isChecked)
-                                // Update the app's theme
                                 if (isChecked) {
                                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                                     Toast.makeText(context, "Dark theme enabled", Toast.LENGTH_SHORT).show()
@@ -68,6 +72,7 @@ fun Settings(
                                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                                     Toast.makeText(context, "Dark theme disabled", Toast.LENGTH_SHORT).show()
                                 }
+                                onSettingsButtonClick()  // This seems redundant unless it does something specific
                             }
                         )
                     }
@@ -102,16 +107,18 @@ fun Settings(
 }
 
 @Composable
-fun BackButton(onClick: () -> Unit) {
-    val vectorDrawable: Painter = painterResource(id = R.drawable.back_arrow)
+fun BackButton(darkTheme: Boolean, onClick: () -> Unit) {
+    val vectorDrawable: Painter = if (darkTheme) {
+        painterResource(id = R.drawable.back_arrow_superior)
+    } else {
+        painterResource(id = R.drawable.back_arrow)
+    }
 
     Image(
         painter = vectorDrawable,
         contentDescription = "Back",
         modifier = Modifier
-            .clickable {
-                onClick()
-            }
+            .clickable(onClick = onClick)
             .size(48.dp)
     )
 }
