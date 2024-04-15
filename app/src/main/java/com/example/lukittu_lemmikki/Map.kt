@@ -20,16 +20,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,7 +38,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.example.lukittu_lemmikki.Map
 import com.example.lukittu_lemmikki.ui.theme.LukittulemmikkiTheme
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -45,7 +48,6 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -107,7 +109,6 @@ class Map : ComponentActivity() {
                 Looper.getMainLooper()
             )
         }
-
     }
 
 
@@ -127,10 +128,15 @@ class Map : ComponentActivity() {
                 mutableStateOf(LatLng(0.toDouble(),0.toDouble()))
             }
 
+            val cameraPosition = rememberCameraPositionState{
+                position = CameraPosition.fromLatLngZoom(
+                    currentLocation, 10f
+                )
+            }
 
-            var cameraPositionState = rememberCameraPositionState("0.0, 0.0, 2.0")
-
-
+            var cameraPositionState by remember {
+                mutableStateOf(cameraPosition)
+            }
 
             locationCallback = object: LocationCallback() {
                 override fun onLocationResult(p0: LocationResult) {
@@ -138,6 +144,11 @@ class Map : ComponentActivity() {
                     for (location in p0.locations) {
                         currentLocation = LatLng(location.latitude, location.longitude)
 
+                        cameraPositionState = CameraPositionState(
+                            position = CameraPosition.fromLatLngZoom(
+                                currentLocation, 10f
+                            )
+                        )
                     }
                 }
             }
@@ -158,9 +169,8 @@ class Map : ComponentActivity() {
     }
 
 
-    @SuppressLint("UnrememberedMutableState")
     @Composable
-    fun LocationScreen(context: Context, currentLocation: LatLng, cameraPositionState: CameraPositionState, onButtonClick: () -> Unit) {
+    fun LocationScreen(context: Context, currentLocation: LatLng, camerapositioState: CameraPositionState, onButtonClick: () -> Unit) {
 
         val contexti = LocalContext.current
         val sensorManager = contexti.getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -168,7 +178,6 @@ class Map : ComponentActivity() {
 
         val sessionSteps = remember { mutableStateOf(0) }
         val totalSteps = remember { mutableStateOf(0) }
-
 
         val sensorEventListener = remember {
             object : SensorEventListener {
@@ -210,7 +219,6 @@ class Map : ComponentActivity() {
                 locationRequired = true
                 startLocationUpdates()
                 Toast.makeText(context, "Permission Granted!", Toast.LENGTH_SHORT).show()
-
             }
             else
             {
@@ -218,28 +226,11 @@ class Map : ComponentActivity() {
             }
         }
 
-        if (permission.all {
-                ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
-            })
-
-        {
-            // get location
-            startLocationUpdates()
-        }
-        else
-        {
-            launchMultiplePermissions.launch(permission)
-        }
-
-
-
         Box(modifier = Modifier.fillMaxSize()) {
 
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
-                cameraPositionState = rememberCameraPositionState{
-                    position = CameraPosition.fromLatLngZoom(LatLng(65.0142,25.4719),11f)
-                }
+                cameraPositionState = camerapositioState
             ) {
                 Marker(
                     state = MarkerState(
@@ -249,20 +240,37 @@ class Map : ComponentActivity() {
                     snippet = "you're here!!!"
                 )
             }
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ){
-                BackButton (onClick = onButtonClick)
-            }
+
             Column(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
+                Text(text = "your location: ${currentLocation.latitude}/${currentLocation.longitude}")
+                Button(onClick = onButtonClick) {
+                    Text(text = "Switch to Main View")
+                }
 
+                Button(onClick = {
 
-                Text(text = "${currentLocation.latitude}/${currentLocation.longitude}")
+                    if (permission.all {
+                            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+                        })
 
+                    {
+                        // get location
+                        startLocationUpdates()
+                    }
+                    else
+                    {
+                        launchMultiplePermissions.launch(permission)
+                    }
+
+                })
+
+                {
+                    Text(text = "get your location")
+                }
                 Button(onClick = {
                     sessionSteps.value = 0
                     sensorManager.registerListener(sensorEventListener, stepSensor, SensorManager.SENSOR_DELAY_NORMAL)
@@ -280,28 +288,22 @@ class Map : ComponentActivity() {
                 Text(text="Steps this session: ${sessionSteps.value}")
                 Text(text="Total Steps: ${totalSteps.value}")
 
-                val preferencesManager = PreferencesManager(context)
-                var level by remember { mutableStateOf(preferencesManager.getLevel()) }
-                var totalStepsAtLevelStart by remember { mutableStateOf(0) }
+                var progress by remember { mutableStateOf(0.0f) }
+                var level by remember { mutableStateOf(1) }
 
+                MyProgressBar(progress, level)
 
+                LaunchedEffect(key1 = totalSteps.value) {
+                    progress += 0.01f
 
-                val progress = derivedStateOf {
-                    val stepsInCurrentLevel = totalSteps.value - totalStepsAtLevelStart
-                    // Calculate progress based on steps. Adjust the calculation as needed.
-                    stepsInCurrentLevel.toFloat() / 100
-                }
-
-                LaunchedEffect(progress.value) {
-                    if (progress.value >= 1.0f) {
+                    if (progress >= 1.0f) {
+                        progress = 0.0f
                         level++
-                        totalStepsAtLevelStart = totalSteps.value
                     }
-                    preferencesManager.saveProgress(progress.value)
-                    preferencesManager.saveLevel(level)
                 }
 
-                MyProgressBar(progress.value, level)
+
+
 
             }
         }

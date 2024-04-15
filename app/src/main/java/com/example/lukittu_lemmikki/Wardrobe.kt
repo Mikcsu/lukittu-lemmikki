@@ -16,10 +16,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,40 +29,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-
+import androidx.compose.ui.viewinterop.AndroidView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
-    var showDialog by remember { mutableStateOf(false) }
-    var dialogType by remember { mutableStateOf("none") } // "none", "clothes", "model"
-
+fun WardrobeView(onButtonClick: () -> Unit) {
+    var showDialog by remember { mutableStateOf(false) } // State to control dialog visibility
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text("Wardrobe")
-                },
-                navigationIcon = {
-                    BackButton(onClick = onButtonClick)
-                },
-                actions = {
-                    IconButton(onClick = {
-                        showDialog = true
-                        dialogType = "model"
-                    }) {
-                        Image(
-                            painter = painterResource(id = R.drawable.wardrobe_box),
-                            contentDescription = null,
-                            Modifier.size(40.dp)
-                        )
-                    }
-                }
-            )
+            SmallTopAppBar(title = { Text("Wardrobe") })
         },
-
-
         content = { innerPadding ->
             Column(
                 modifier = Modifier
@@ -73,80 +49,76 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
+                Image(
+                    painter = painterResource(id = R.drawable.clothesbutton),
+                    contentDescription = "Open Clothes Display",
+                    modifier = Modifier
+                        .clickable { showDialog = true }
+                        .size(64.dp) // Set the size of your image button
+                        .padding(8.dp) // Optionally add padding around your image if needed
+                )
+            }
+        },
+        bottomBar = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(onClick = onButtonClick) {
+                    Text("Back to Main")
+                }
             }
         }
     )
 
-    if (showDialog && dialogType == "model") {
-        ModelDisplay(onModelSelect = { model ->
-            onModelSelect(model)
-            showDialog = false
-            dialogType = "none"
-        }, onDismissRequest = {
-            showDialog = false
-            dialogType = "none"
-        })
+    // Clothes dialog
+    if (showDialog) {
+        ClothesDisplay(onDismissRequest = { showDialog = false })
     }
 }
-
-// Assume you have a Composable function `ModelDisplay` similar to `ClothesDisplay`
-// that you'll implement to handle model selection logic.
 @Composable
-fun ModelDisplay(onModelSelect: (String) -> Unit, onDismissRequest: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismissRequest,
-        title = { Text("Model Selection") },
-        text = { ModelList(onModelSelect) },
-        confirmButton = {
-            Button(onClick = onDismissRequest) { Text("Close") }
-        }
-    )
-}
-data class Model(val id: Int, val name: String)
-
-@Composable
-fun ModelList(onModelSelect: (String) -> Unit) {
-    // List of all model images
-    val modelList = listOf(
-        Model(R.drawable.gekko, "gekko"),
-        Model(R.drawable.deer, "deer"),
-        Model(R.drawable.fish, "fish"),
-        Model(R.drawable.hamster, "hamster"),
-        Model(R.drawable.monkey, "monkey"),
-        Model(R.drawable.octopus, "octopus"),
-        Model(R.drawable.snake, "snake")
+fun ClothesList() {
+    // List of all images
+    val imageList = listOf(
+        R.drawable.projectshirt1,
+        R.drawable.projectshirt2,
+        R.drawable.projectshirt3,
+        R.drawable.projectshirt4,
+        R.drawable.projectdress,
+        R.drawable.projectdress2,
+        R.drawable.projectdress3,
+        R.drawable.projectdress4,
+        R.drawable.projectshirt5
         // Add more images as needed
     )
 
-    val modelRows = modelList.chunked(2)
+    val imageRows = imageList.chunked(2)
 
     LazyColumn {
-        items(modelRows) { rowModels ->
+        items(imageRows) { rowImages ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(4.dp)
             ) {
-                for (model in rowModels) {
+                for (image in rowImages) {
                     Image(
-                        painter = painterResource(id = model.id),
-                        contentDescription = "Model item",
+                        painter = painterResource(id = image),
+                        contentDescription = "Clothing item",
                         modifier = Modifier
                             .weight(1f)
                             .padding(4.dp)
                             .clickable {
-                                onModelSelect(model.name) // Pass the model name when clicked
-                                Log.d("ModelList", "Model ${model.name} clicked") // Log to console
+                                Log.d("ClothesList", "Item $image clicked") // Log to console
                             }
                     )
                     // Add spacer if there's more than one image in the row
-                    if (rowModels.size > 1) {
+                    if (rowImages.size > 1) {
                         Spacer(modifier = Modifier.width(4.dp))
                     }
                 }
                 // If there's only one image in the row, fill the remaining space
-                if (rowModels.size == 1) {
+                if (rowImages.size == 1) {
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
@@ -154,3 +126,17 @@ fun ModelList(onModelSelect: (String) -> Unit) {
     }
 }
 
+
+
+@Composable
+fun ClothesDisplay(onDismissRequest: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = { Text("Clothes Details") },
+        text = { Text("Details of the clothes will be shown here.") },
+        confirmButton = {
+            Button(onClick = onDismissRequest) { Text("Close") }
+            ClothesList()
+        }
+    )
+}
