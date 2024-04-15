@@ -19,10 +19,6 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
@@ -34,6 +30,7 @@ import androidx.compose.ui.unit.dp
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun Settings(
+    darkTheme: Boolean,
     onDarkThemeChange: (Boolean) -> Unit,
     selectedModel: String,
     onModelChange: (String) -> Unit,
@@ -44,7 +41,6 @@ fun Settings(
 ) {
     val context = LocalContext.current
     val preferencesManager = PreferencesManager(context)
-    var darkTheme by remember { mutableStateOf(preferencesManager.getDarkTheme()) }
 
     Scaffold(
         topBar = {
@@ -62,7 +58,6 @@ fun Settings(
                         Switch(
                             checked = darkTheme,
                             onCheckedChange = { isChecked ->
-                                darkTheme = isChecked
                                 onDarkThemeChange(isChecked)
                                 preferencesManager.saveDarkTheme(isChecked)
                                 if (isChecked) {
@@ -72,7 +67,7 @@ fun Settings(
                                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                                     Toast.makeText(context, "Dark theme disabled", Toast.LENGTH_SHORT).show()
                                 }
-                                onSettingsButtonClick()  // This seems redundant unless it does something specific
+                                onSettingsButtonClick()
                             }
                         )
                     }

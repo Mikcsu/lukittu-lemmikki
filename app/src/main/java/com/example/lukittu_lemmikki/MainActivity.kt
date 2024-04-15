@@ -146,6 +146,7 @@ fun MyApp(mapNavigation: MapNavigation) {
                 onButtonClick = { currentView = 1}, darkTheme = darkTheme
             )
             5 -> Settings(
+                darkTheme = darkTheme,
                 onDarkThemeChange = { darkTheme = it },
                 selectedModel = selectedModel,
                 onModelChange = { model ->
