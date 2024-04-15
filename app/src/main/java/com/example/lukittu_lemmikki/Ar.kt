@@ -17,7 +17,7 @@ import io.github.sceneview.ar.node.PlacementMode
 //Note: this works now but no depth or correct models inplace
 
 @Composable
-fun ARScreen(model: String, onButtonClick: () -> Unit) {
+fun ARScreen(model: String, onButtonClick: () -> Unit, darkTheme: Boolean) {
     val nodes = remember {
         mutableListOf<ArNode>()
     }
@@ -56,7 +56,7 @@ fun ARScreen(model: String, onButtonClick: () -> Unit) {
             }
         )
 
-        BackButton(onClick = onButtonClick)
+        BackButton(onClick = onButtonClick, darkTheme = darkTheme)
 
     }
 

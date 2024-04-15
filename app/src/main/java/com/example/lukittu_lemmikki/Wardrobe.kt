@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
+fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit, darkTheme: Boolean) {
     var showDialog by remember { mutableStateOf(false) }
     var dialogType by remember { mutableStateOf("none") } // "none", "clothes", "model"
 
@@ -46,7 +46,7 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
                     Text("Wardrobe")
                 },
                 navigationIcon = {
-                    BackButton(onClick = onButtonClick)
+                    BackButton(onClick = onButtonClick, darkTheme = darkTheme)
                 },
                 actions = {
                     IconButton(onClick = {

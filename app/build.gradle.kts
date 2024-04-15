@@ -61,7 +61,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
 
     implementation("androidx.appcompat:appcompat:1.6.1")
-
+    implementation("androidx.compose.runtime:runtime:1.6.5")
     implementation ("io.github.sceneview:arsceneview:0.10.0")
     implementation("com.google.ar:core:1.42.0")
     implementation ("androidx.camera:camera-camera2:1.3.2")

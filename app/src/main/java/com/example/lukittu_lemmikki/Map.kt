@@ -18,7 +18,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +26,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -45,7 +45,6 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -62,7 +61,7 @@ class Map : ComponentActivity() {
 
 
     @Composable
-    fun MapView(onButtonClick: () -> Unit) {
+    fun MapView(onButtonClick: () -> Unit, darkTheme: Boolean) {
 
     }
 
@@ -252,7 +251,7 @@ class Map : ComponentActivity() {
             Row(
                 modifier = Modifier.fillMaxWidth()
             ){
-                BackButton (onClick = onButtonClick)
+                BackButton (onClick = onButtonClick, darkTheme = false)
             }
             Column(
                 modifier = Modifier.fillMaxSize(),
