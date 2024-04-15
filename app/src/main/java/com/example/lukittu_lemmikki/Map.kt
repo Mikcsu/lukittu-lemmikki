@@ -31,6 +31,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -169,6 +170,7 @@ class Map : ComponentActivity() {
     }
 
 
+    @SuppressLint("UnrememberedMutableState")
     @Composable
     fun LocationScreen(context: Context, currentLocation: LatLng, camerapositioState: CameraPositionState, onButtonClick: () -> Unit) {
 
@@ -178,6 +180,7 @@ class Map : ComponentActivity() {
 
         val sessionSteps = remember { mutableStateOf(0) }
         val totalSteps = remember { mutableStateOf(0) }
+
 
         val sensorEventListener = remember {
             object : SensorEventListener {
@@ -288,19 +291,28 @@ class Map : ComponentActivity() {
                 Text(text="Steps this session: ${sessionSteps.value}")
                 Text(text="Total Steps: ${totalSteps.value}")
 
-                var progress by remember { mutableStateOf(0.0f) }
-                var level by remember { mutableStateOf(1) }
+                val preferencesManager = PreferencesManager(context)
+                var level by remember { mutableStateOf(preferencesManager.getLevel()) }
+                var totalStepsAtLevelStart by remember { mutableStateOf(0) }
 
-                MyProgressBar(progress, level)
 
-                LaunchedEffect(key1 = totalSteps.value) {
-                    progress += 0.01f
 
-                    if (progress >= 1.0f) {
-                        progress = 0.0f
-                        level++
-                    }
+                val progress = derivedStateOf {
+                    val stepsInCurrentLevel = totalSteps.value - totalStepsAtLevelStart
+                    // Calculate progress based on steps. Adjust the calculation as needed.
+                    stepsInCurrentLevel.toFloat() / 100
                 }
+
+                LaunchedEffect(progress.value) {
+                    if (progress.value >= 1.0f) {
+                        level++
+                        totalStepsAtLevelStart = totalSteps.value
+                    }
+                    preferencesManager.saveProgress(progress.value)
+                    preferencesManager.saveLevel(level)
+                }
+
+                MyProgressBar(progress.value, level)
 
 
 

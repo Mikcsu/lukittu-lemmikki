@@ -5,6 +5,16 @@ import android.content.Context
 class PreferencesManager(context: Context) {
     private val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
 
+    fun saveLevel(level: Int) {
+        val editor = sharedPreferences.edit()
+        editor.putInt("level", level)
+        editor.apply()
+    }
+
+    fun getLevel(): Int {
+        return sharedPreferences.getInt("level", 1)
+    }
+
     fun saveProgress(progress: Float) {
         val editor = sharedPreferences.edit()
         editor.putFloat("progress", progress)
