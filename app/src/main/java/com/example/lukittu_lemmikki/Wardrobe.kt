@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
@@ -53,8 +54,13 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit, dar
                         showDialog = true
                         dialogType = "model"
                     }) {
+                        val wardrobeBoxDrawable: Painter = if (darkTheme) {
+                            painterResource(id = R.drawable.wardrobe_box_superior) // Use the dark theme image
+                        } else {
+                            painterResource(id = R.drawable.wardrobe_box) // Use the light theme image
+                        }
                         Image(
-                            painter = painterResource(id = R.drawable.wardrobe_box),
+                            painter = wardrobeBoxDrawable,
                             contentDescription = null,
                             Modifier.size(40.dp)
                         )
