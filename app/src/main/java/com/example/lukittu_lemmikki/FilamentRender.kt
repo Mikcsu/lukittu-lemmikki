@@ -93,7 +93,7 @@ class FilamentRender : Activity() {
             singleTapDetector.onTouchEvent(event)
             true
         }
-        val modelName = intent.getStringExtra("selected_model") ?: "default_model.glb" // Default model if none specified
+        val modelName = intent.getStringExtra("selected_model") ?: "Not used" // Default model if none specified
 
         createIndirectLight()
         createDefaultRenderables(modelName)

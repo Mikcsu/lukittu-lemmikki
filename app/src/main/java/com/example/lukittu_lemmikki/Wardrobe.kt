@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.dp
 fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
     var dialogType by remember { mutableStateOf("none") }
-    var selectedModel by remember { mutableStateOf("") }
+    var selectedModel by remember { mutableStateOf("deer") }
     val context = LocalContext.current// "none", "clothes", "model"
 
 
