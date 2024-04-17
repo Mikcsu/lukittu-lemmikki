@@ -284,7 +284,7 @@ class Map : ComponentActivity() {
                 Text(text="Total Steps: ${totalSteps}")
 
 
-
+                var money = preferencesManager.getMoney()
                 var level = preferencesManager.getLevel()
                 var totalStepsAtLevelStart = preferencesManager.getTotalStepsAtLevelStart()
                 Log.d("Progress", "Total steps at level start: $totalStepsAtLevelStart")
@@ -301,8 +301,10 @@ class Map : ComponentActivity() {
                     if (progress.value >= 1.0f) {
                         Log.d("Progress", "Level up! ${progress.value}")
                         level++
+                        money += 100
                         totalStepsAtLevelStart = totalSteps
                         preferencesManager.saveTotalStepsAtLevelStart(totalStepsAtLevelStart)
+                        preferencesManager.saveMoney(money)
                     }
                     preferencesManager.saveProgress(progress.value)
                     preferencesManager.saveLevel(level)

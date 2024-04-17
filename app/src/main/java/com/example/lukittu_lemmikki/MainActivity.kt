@@ -122,12 +122,15 @@ private fun initializeSensor(){
 
 @Composable
 fun MyApp(mapNavigation: MapNavigation) {
+
+
     val context = LocalContext.current
     val preferencesManager = PreferencesManager(context)
     var currentView by remember { mutableStateOf(1) }
     var selectedModel by remember { mutableStateOf(preferencesManager.getSelectedModel() ?: "deer") } // Default model
     var darkTheme by remember { mutableStateOf(preferencesManager.getDarkTheme()) } // Default theme
     var isSkinwalkerMode by remember { mutableStateOf(preferencesManager.getSkinwalkerMode()) } // Default Skinwalker mode
+    var money = preferencesManager.getMoney()
 
     LukittulemmikkiTheme(darkTheme = darkTheme) {
         when (currentView) {
@@ -177,8 +180,12 @@ fun MainActivityView(
     onMapButtonClick: () -> Unit,
     onArButtonClick: () -> Unit,
     onWardrobeButtonClick: () -> Unit,
-    onSettingsButtonClick: () -> Unit
+    onSettingsButtonClick: () -> Unit,
 ) {
+    val context = LocalContext.current
+    val preferencesManager = PreferencesManager(context)
+    var money = preferencesManager.getMoney()
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -194,7 +201,11 @@ fun MainActivityView(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             Text(text = "AR-Lemmikki")
+
+            Text(text = "Money: $money")
+
             Button(
                 onClick = onMapButtonClick,
                 modifier = Modifier.size(width = 200.dp, height = 40.dp)
