@@ -162,6 +162,8 @@ class Map : ComponentActivity() {
     @Composable
     fun LocationScreen(context: Context, currentLocation: LatLng, cameraPositionState: CameraPositionState, onButtonClick: () -> Unit) {
 
+        val preferencesManager = PreferencesManager(context)
+
         val contexti = LocalContext.current
         val sensorManager = contexti.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         val stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
@@ -175,11 +177,12 @@ class Map : ComponentActivity() {
                 override fun onSensorChanged(event: SensorEvent) {
                     if (event.sensor == stepSensor) {
 
-                        val stepCount = event.values[0].toInt()
-                        Log.d("StepCounter", "Step Count: $stepCount")
+                        //val stepCount = event.values[0].toInt()
+                        //Log.d("StepCounter", "Step Count: $stepCount")
 
-                        totalSteps.value = stepCount
+                        totalSteps.value += 1
                         sessionSteps.value += 1
+                        preferencesManager.saveSteps(totalSteps.value)
 
                     }
                 }
@@ -277,12 +280,15 @@ class Map : ComponentActivity() {
                     Text(text = "Stop Step Counter")
                 }
 
+                totalSteps.value = preferencesManager.getSteps()
                 Text(text="Steps this session: ${sessionSteps.value}")
                 Text(text="Total Steps: ${totalSteps.value}")
 
-                val preferencesManager = PreferencesManager(context)
+
+
                 var level by remember { mutableStateOf(preferencesManager.getLevel()) }
-                var totalStepsAtLevelStart by remember { mutableStateOf(0) }
+                var totalStepsAtLevelStart by remember { mutableStateOf(preferencesManager.getTotalStepsAtLevelStart()) }
+                Log.d("Progress", "Total steps at level start: $totalStepsAtLevelStart")
 
 
 
@@ -294,8 +300,10 @@ class Map : ComponentActivity() {
 
                 LaunchedEffect(progress.value) {
                     if (progress.value >= 1.0f) {
+                        Log.d("Progress", "Level up! ${progress.value}")
                         level++
                         totalStepsAtLevelStart = totalSteps.value
+                        preferencesManager.saveTotalStepsAtLevelStart(totalStepsAtLevelStart)
                     }
                     preferencesManager.saveProgress(progress.value)
                     preferencesManager.saveLevel(level)
