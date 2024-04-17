@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -183,7 +184,7 @@ fun MainActivityView(
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.assaultpet),
+            painter = painterResource(id = R.drawable.backgroundmain),
             contentDescription = null, // Content description is null as it's a decorative image
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.FillBounds // Scale the image to fill the bounds of the Box
@@ -193,27 +194,28 @@ fun MainActivityView(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Text(text = "AR-Lemmikki")
             Button(
                 onClick = onMapButtonClick,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.size(width = 200.dp, height = 40.dp)
             ) {
                 Text(text = "Map")
             }
             Button(
                 onClick = onArButtonClick,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.size(width = 200.dp, height = 40.dp)
             ) {
                 Text(text = "AR")
             }
             Button(
                 onClick = onWardrobeButtonClick,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.size(width = 200.dp, height = 40.dp)
             ) {
                 Text(text = "Wardrobe")
             }
             Button(
                 onClick = onSettingsButtonClick,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.size(width = 200.dp, height = 40.dp)
             ) {
                 Text(text = "Settings")
             }
