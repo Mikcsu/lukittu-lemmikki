@@ -40,9 +40,9 @@ class PreferencesManager(context: Context) {
         return sharedPreferences.getInt("Steps", 0)
     }
 
-    fun saveTotalStepsAtLevelStart(steps: Int) {
+    fun saveTotalStepsAtLevelStart(startSteps: Int) {
         val editor = sharedPreferences.edit()
-        editor.putInt("TotalStepsAtLevelStart", steps)
+        editor.putInt("TotalStepsAtLevelStart", startSteps)
         editor.apply()
     }
 
