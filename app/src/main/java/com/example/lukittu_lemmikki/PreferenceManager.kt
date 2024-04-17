@@ -40,6 +40,16 @@ class PreferencesManager(context: Context) {
         return sharedPreferences.getInt("Steps", 0)
     }
 
+    fun saveTotalStepsAtLevelStart(startSteps: Int) {
+        val editor = sharedPreferences.edit()
+        editor.putInt("TotalStepsAtLevelStart", startSteps)
+        editor.apply()
+    }
+
+    fun getTotalStepsAtLevelStart(): Int {
+        return sharedPreferences.getInt("TotalStepsAtLevelStart", 0)
+    }
+
     fun saveSelectedModel(model: String) {
         val editor = sharedPreferences.edit()
         editor.putString("SelectedModel", model)

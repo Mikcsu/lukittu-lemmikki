@@ -161,12 +161,14 @@ class Map : ComponentActivity() {
     @Composable
     fun LocationScreen(context: Context, currentLocation: LatLng, cameraPositionState: CameraPositionState, onButtonClick: () -> Unit) {
 
+        val preferencesManager = PreferencesManager(context)
+
         val contexti = LocalContext.current
         val sensorManager = contexti.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         val stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
 
         val sessionSteps = remember { mutableStateOf(0) }
-        val totalSteps = remember { mutableStateOf(0) }
+        var totalSteps = preferencesManager.getSteps()
 
 
         val sensorEventListener = remember {
@@ -174,11 +176,12 @@ class Map : ComponentActivity() {
                 override fun onSensorChanged(event: SensorEvent) {
                     if (event.sensor == stepSensor) {
 
-                        val stepCount = event.values[0].toInt()
-                        Log.d("StepCounter", "Step Count: $stepCount")
+                        //val stepCount = event.values[0].toInt()
+                        //Log.d("StepCounter", "Step Count: $stepCount")
 
-                        totalSteps.value = stepCount
+                        totalSteps += 1
                         sessionSteps.value += 1
+                        preferencesManager.saveSteps(totalSteps)
 
                     }
                 }
@@ -276,25 +279,30 @@ class Map : ComponentActivity() {
                     Text(text = "Stop Step Counter")
                 }
 
+                totalSteps = preferencesManager.getSteps()
                 Text(text="Steps this session: ${sessionSteps.value}")
-                Text(text="Total Steps: ${totalSteps.value}")
+                Text(text="Total Steps: ${totalSteps}")
 
-                val preferencesManager = PreferencesManager(context)
-                var level by remember { mutableStateOf(preferencesManager.getLevel()) }
-                var totalStepsAtLevelStart by remember { mutableStateOf(0) }
+
+
+                var level = preferencesManager.getLevel()
+                var totalStepsAtLevelStart = preferencesManager.getTotalStepsAtLevelStart()
+                Log.d("Progress", "Total steps at level start: $totalStepsAtLevelStart")
 
 
 
                 val progress = derivedStateOf {
-                    val stepsInCurrentLevel = totalSteps.value - totalStepsAtLevelStart
+                    val stepsInCurrentLevel = totalSteps - totalStepsAtLevelStart
                     // Calculate progress based on steps. Adjust the calculation as needed.
                     stepsInCurrentLevel.toFloat() / 100
                 }
 
                 LaunchedEffect(progress.value) {
                     if (progress.value >= 1.0f) {
+                        Log.d("Progress", "Level up! ${progress.value}")
                         level++
-                        totalStepsAtLevelStart = totalSteps.value
+                        totalStepsAtLevelStart = totalSteps
+                        preferencesManager.saveTotalStepsAtLevelStart(totalStepsAtLevelStart)
                     }
                     preferencesManager.saveProgress(progress.value)
                     preferencesManager.saveLevel(level)
