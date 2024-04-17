@@ -93,8 +93,10 @@ class FilamentRender : Activity() {
             singleTapDetector.onTouchEvent(event)
             true
         }
+        val modelName = intent.getStringExtra("selected_model") ?: "default_model.glb" // Default model if none specified
 
         createIndirectLight()
+        createDefaultRenderables(modelName)
 
         setStatusText("To load a new model, go to the above URL on your host machine.")
 
@@ -136,8 +138,8 @@ class FilamentRender : Activity() {
         remoteServer = RemoteServer(8082)
     }
 
-    private fun createDefaultRenderables() {
-        val buffer = assets.open("models/deer.glb").use { input ->
+    private fun createDefaultRenderables(modelName: String) {
+        val buffer = assets.open("models/$modelName.glb").use { input ->
             val bytes = ByteArray(input.available())
             input.read(bytes)
             ByteBuffer.wrap(bytes)
@@ -459,7 +461,6 @@ class FilamentRender : Activity() {
     inner class DoubleTapListener : GestureDetector.SimpleOnGestureListener() {
         override fun onDoubleTap(e: MotionEvent): Boolean {
             modelViewer.destroyModel()
-            createDefaultRenderables()
             return super.onDoubleTap(e)
         }
     }
