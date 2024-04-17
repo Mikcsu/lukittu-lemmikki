@@ -41,6 +41,10 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".FilamentRender">
+            <!-- Other configuration for the activity -->
+        </activity>
+
         <!-- Ei tarvita -->
         <activity
             android:name=".Map"

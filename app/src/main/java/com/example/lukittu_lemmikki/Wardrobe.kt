@@ -1,5 +1,6 @@
 package com.example.lukittu_lemmikki
 
+import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -28,15 +29,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+
+
+
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
-    var dialogType by remember { mutableStateOf("none") } // "none", "clothes", "model"
+    var dialogType by remember { mutableStateOf("none") }
+    var selectedModel by remember { mutableStateOf("") }
+    val context = LocalContext.current// "none", "clothes", "model"
 
 
     Scaffold(
@@ -59,6 +67,8 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
                             Modifier.size(40.dp)
                         )
                     }
+
+
                 }
             )
         },
@@ -73,6 +83,16 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Button(onClick = {
+                    // Intent to start FilamentRender activity
+                    val intent = Intent(context, FilamentRender::class.java).apply{
+                        putExtra("selected_model", selectedModel)
+                        Log.d("WardrobeView", "Starting FilamentRender activity with model $selectedModel")
+                    }
+                    context.startActivity(intent)
+                }) {
+                    Text("Go to Filament Render")
+                }
 
             }
         }
@@ -80,6 +100,7 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit) {
 
     if (showDialog && dialogType == "model") {
         ModelDisplay(onModelSelect = { model ->
+            selectedModel = model
             onModelSelect(model)
             showDialog = false
             dialogType = "none"
@@ -139,6 +160,7 @@ fun ModelList(onModelSelect: (String) -> Unit) {
                                 onModelSelect(model.name) // Pass the model name when clicked
                                 Log.d("ModelList", "Model ${model.name} clicked") // Log to console
                             }
+
                     )
                     // Add spacer if there's more than one image in the row
                     if (rowModels.size > 1) {

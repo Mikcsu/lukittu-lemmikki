@@ -106,7 +106,7 @@ fun MyApp(mapNavigation: MapNavigation) {
             1 -> MainActivityView(
                 onMapButtonClick = { mapNavigation.navigateToMap() },
                 onArButtonClick = { currentView = 3 },
-                onWardrobeButtonClick = { currentView = 4},
+                onWardrobeButtonClick = { currentView = 4 },
                 onSettingsButtonClick = { currentView = 5 } // Add this line
             )
             2 -> helper.MapView(onButtonClick = { currentView = 1}) // Launch MapView with the callback
@@ -116,8 +116,8 @@ fun MyApp(mapNavigation: MapNavigation) {
                     selectedModel = if (isSkinwalkerMode) "sw$model" else model // Update the selected model
                     preferencesManager.saveSelectedModel(selectedModel) // Save the selected model to shared preferences
                 },
-                onButtonClick = { currentView = 1}
-            )
+                onButtonClick = { currentView = 1},
+                )
             5 -> Settings(
                 darkTheme = darkTheme,
                 onDarkThemeChange = { darkTheme = it },
