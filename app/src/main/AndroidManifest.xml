@@ -36,16 +36,16 @@
             android:theme="@style/Theme.Lukittulemmikki">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- Ei tarvita -->
+        <!-- Adjusted to not include LAUNCHER category -->
         <activity
             android:name=".Map"
             android:label="MapActivity"
             android:exported="true">
+            <!-- Removed LAUNCHER intent filter -->
         </activity>
 
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_map_api"/>
