@@ -17,6 +17,7 @@ import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -44,7 +45,9 @@ fun Settings(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(title = { Text("Settings") },
+            CenterAlignedTopAppBar(title = { Text(
+                text = "Settings",
+                color = MaterialTheme.colorScheme.onSurface) },
                 navigationIcon = {
                     BackButton(darkTheme, onClick = onMainButtonClick)
                 })
@@ -54,7 +57,9 @@ fun Settings(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     // Dark theme switch
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "Dark Theme")
+                        Text(
+                            text = "Dark Theme",
+                            color = MaterialTheme.colorScheme.onSurface)
                         Switch(
                             checked = darkTheme,
                             onCheckedChange = { isChecked ->
@@ -74,7 +79,9 @@ fun Settings(
 
                     // Skinwalker mode switch
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "Skinwalker Mode")
+                        Text(
+                            text = "Skinwalker Mode",
+                            color = MaterialTheme.colorScheme.onSurface)
                         Switch(
                             checked = isSkinwalkerMode,
                             onCheckedChange = { isChecked ->
@@ -96,7 +103,9 @@ fun Settings(
                         preferencesManager.saveLevel(1)
                         Toast.makeText(context, "Preferences reset", Toast.LENGTH_SHORT).show()
                     }) {
-                        Text(text = "Reset Preferences")
+                        Text(
+                            text = "Reset Preferences",
+                            color = MaterialTheme.colorScheme.onSurface)
                     }
                 }
             }
