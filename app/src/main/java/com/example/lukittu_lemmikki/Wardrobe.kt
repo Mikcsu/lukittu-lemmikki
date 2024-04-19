@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
@@ -38,6 +39,9 @@ import androidx.compose.ui.unit.dp
 fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit, darkTheme: Boolean) {
     var showDialog by remember { mutableStateOf(false) }
     var dialogType by remember { mutableStateOf("none") } // "none", "clothes", "model"
+    val context = LocalContext.current
+    val preferencesManager = PreferencesManager(context)
+    var money = preferencesManager.getMoney()
 
 
     Scaffold(
@@ -50,20 +54,23 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit, dar
                     BackButton(onClick = onButtonClick, darkTheme = darkTheme)
                 },
                 actions = {
-                    IconButton(onClick = {
-                        showDialog = true
-                        dialogType = "model"
-                    }) {
-                        val wardrobeBoxDrawable: Painter = if (darkTheme) {
-                            painterResource(id = R.drawable.wardrobe_box_superior) // Use the dark theme image
-                        } else {
-                            painterResource(id = R.drawable.wardrobe_box) // Use the light theme image
+                    Column {
+                        IconButton(onClick = {
+                            showDialog = true
+                            dialogType = "model"
+                        }) {
+                            val wardrobeBoxDrawable: Painter = if (darkTheme) {
+                                painterResource(id = R.drawable.wardrobe_box_superior) // Use the dark theme image
+                            } else {
+                                painterResource(id = R.drawable.wardrobe_box) // Use the light theme image
+                            }
+                            Image(
+                                painter = wardrobeBoxDrawable,
+                                contentDescription = null,
+                                Modifier.size(40.dp)
+                            )
                         }
-                        Image(
-                            painter = wardrobeBoxDrawable,
-                            contentDescription = null,
-                            Modifier.size(40.dp)
-                        )
+                        Text("Money: $money")
                     }
                 }
             )
@@ -109,21 +116,32 @@ fun ModelDisplay(onModelSelect: (String) -> Unit, onDismissRequest: () -> Unit) 
         }
     )
 }
-data class Model(val id: Int, val name: String)
+data class Model(val id: Int, val name: String, var cost: Int, var bought: Boolean = false)
+
+
 
 @Composable
 fun ModelList(onModelSelect: (String) -> Unit) {
+
+    val context = LocalContext.current
+    val preferencesManager = PreferencesManager(context)
+    var money = preferencesManager.getMoney()
+
     // List of all model images
-    val modelList = listOf(
-        Model(R.drawable.gekko, "gekko"),
-        Model(R.drawable.deer, "deer"),
-        Model(R.drawable.fish, "fish"),
-        Model(R.drawable.hamster, "hamster"),
-        Model(R.drawable.monkey, "monkey"),
-        Model(R.drawable.octopus, "octopus"),
-        Model(R.drawable.snake, "snake")
-        // Add more images as needed
-    )
+    var modelList by remember {
+        mutableStateOf(
+            listOf(
+                Model(R.drawable.gekko, "gekko", 100),
+                Model(R.drawable.deer, "deer", 100),
+                Model(R.drawable.fish, "fish", 100),
+                Model(R.drawable.hamster, "hamster", 200),
+                Model(R.drawable.monkey, "monkey", 500),
+                Model(R.drawable.octopus, "octopus", 500),
+                Model(R.drawable.snake, "snake", 500)
+                // Add more images as needed
+            )
+        )}
+
 
     val modelRows = modelList.chunked(2)
 
@@ -135,17 +153,40 @@ fun ModelList(onModelSelect: (String) -> Unit) {
                     .padding(4.dp)
             ) {
                 for (model in rowModels) {
-                    Image(
-                        painter = painterResource(id = model.id),
-                        contentDescription = "Model item",
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(4.dp)
-                            .clickable {
-                                onModelSelect(model.name) // Pass the model name when clicked
-                                Log.d("ModelList", "Model ${model.name} clicked") // Log to console
-                            }
-                    )
+                    Column {
+                        IconButton(
+                            onClick = {
+                                if (money >= model.cost) {
+                                    money -= model.cost
+                                    model.bought = true
+                                    model.cost = 0
+                                    //preferencesManager.saveMoney(money)
+                                    onModelSelect(model.name) // Pass the model name when clicked
+                                    Log.d("ModelList", "Model ${model.name} bought") // Log to console
+
+                                    modelList = modelList.map {
+                                        if (it.name == model.name) {
+                                            it.copy(bought = true, cost = 0)
+                                        } else {
+                                            it
+                                        }
+                                    }
+                                } else {
+                                    Log.d("ModelList", "Not enough money to buy ${model.name}") // Log to console
+                                }
+                            },
+                            enabled = money >= model.cost
+                        ) {
+                            Image(
+                                painter = painterResource(id = model.id),
+                                contentDescription = "Model item",
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(4.dp)
+                            )
+                        }
+                        Text("Buy for ${model.cost}")
+                    }
                     // Add spacer if there's more than one image in the row
                     if (rowModels.size > 1) {
                         Spacer(modifier = Modifier.width(4.dp))
@@ -159,4 +200,3 @@ fun ModelList(onModelSelect: (String) -> Unit) {
         }
     }
 }
-
