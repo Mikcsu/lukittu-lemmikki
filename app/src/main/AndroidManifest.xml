@@ -40,7 +40,10 @@
             </intent-filter>
         </activity>
 
-        <!-- Adjusted to not include LAUNCHER category -->
+        <activity android:name=".FilamentRender">
+            <!-- Other configuration for the activity -->
+        </activity>
+
         <activity
             android:name=".Map"
             android:label="MapActivity"

@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.lukittu_lemmikki"
-        minSdk = 30
+        minSdk = 28
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -84,4 +84,6 @@ dependencies {
     implementation("androidx.activity:activity-compose")
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material:material")
+    implementation ("com.google.android.filament:filament-android:1.51.2")
+    implementation ("com.google.android.filament:filament-utils-android:1.51.2")
 }
