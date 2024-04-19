@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
@@ -147,7 +146,7 @@ fun MyApp(mapNavigation: MapNavigation) {
                     selectedModel = if (isSkinwalkerMode) "sw$model" else model // Update the selected model
                     preferencesManager.saveSelectedModel(selectedModel) // Save the selected model to shared preferences
                 },
-                onButtonClick = { currentView = 1}, darkTheme = darkTheme
+                onButtonClick = { currentView = 1}, darkTheme = darkTheme, preferencesManager = preferencesManager
             )
             5 -> Settings(
                 darkTheme = darkTheme,

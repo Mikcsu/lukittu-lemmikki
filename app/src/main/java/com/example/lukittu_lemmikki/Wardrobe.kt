@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -35,17 +36,20 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit, darkTheme: Boolean) {
+fun WardrobeView(
+    onModelSelect: (String) -> Unit,
+    onButtonClick: () -> Unit,
+    preferencesManager: PreferencesManager, // Pass PreferencesManager
+    darkTheme: Boolean
+) {
     var showDialog by remember { mutableStateOf(false) }
-    var dialogType by remember { mutableStateOf("none") } // "none", "clothes", "model"
-
+    var dialogType by remember { mutableStateOf("none") }
+    val selectedModel = remember { mutableStateOf(preferencesManager.getSelectedModel() ?: "deer") }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = {
-                    Text("Wardrobe")
-                },
+                title = { Text("Wardrobe") },
                 navigationIcon = {
                     BackButton(onClick = onButtonClick, darkTheme = darkTheme)
                 },
@@ -55,9 +59,9 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit, dar
                         dialogType = "model"
                     }) {
                         val wardrobeBoxDrawable: Painter = if (darkTheme) {
-                            painterResource(id = R.drawable.wardrobe_box_superior) // Use the dark theme image
+                            painterResource(id = R.drawable.wardrobe_box_superior)
                         } else {
-                            painterResource(id = R.drawable.wardrobe_box) // Use the light theme image
+                            painterResource(id = R.drawable.wardrobe_box)
                         }
                         Image(
                             painter = wardrobeBoxDrawable,
@@ -68,8 +72,6 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit, dar
                 }
             )
         },
-
-
         content = { innerPadding ->
             Column(
                 modifier = Modifier
@@ -79,7 +81,9 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit, dar
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
+                PetView(selectedModel.value) { hat ->
+                    // Here you might update the state of hats if needed
+                }
             }
         }
     )
@@ -87,6 +91,8 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit, dar
     if (showDialog && dialogType == "model") {
         ModelDisplay(onModelSelect = { model ->
             onModelSelect(model)
+            preferencesManager.saveSelectedModel(model) // Save the selected model when it is selected
+            selectedModel.value = model
             showDialog = false
             dialogType = "none"
         }, onDismissRequest = {
@@ -95,6 +101,49 @@ fun WardrobeView(onModelSelect: (String) -> Unit, onButtonClick: () -> Unit, dar
         })
     }
 }
+
+@Composable
+fun PetView(selectedModel: String, onSelectHat: (String) -> Unit) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth().padding(16.dp)
+    ) {
+        Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = { onSelectHat("no_hat") }) { Text("No Hat") }
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(onClick = { onSelectHat("hat1") }) { Text("Hat 1") }
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(onClick = { onSelectHat("hat2") }) { Text("Hat 2") }
+        }
+        Spacer(modifier = Modifier.height(16.dp)) // Adds space between the buttons and the image
+        if (selectedModel.isNotEmpty()) {
+            val modelId = when (selectedModel) {
+                "gekko" -> R.drawable.gekko
+                "deer" -> R.drawable.deer
+                "fish" -> R.drawable.fish
+                "hamster" -> R.drawable.hamster
+                "monkey" -> R.drawable.monkey
+                "octopus" -> R.drawable.octopus
+                "snake" -> R.drawable.snake
+                else -> R.drawable.deer // Default case
+            }
+            val modelImage = painterResource(id = modelId)
+            Image(
+                painter = modelImage,
+                contentDescription = "Selected Pet Model",
+                modifier = Modifier
+                    .size(200.dp)
+                    .align(Alignment.CenterHorizontally) // Ensures the image is centered within the column
+            )
+        }
+    }
+}
+
+
+
+
+
 
 // Assume you have a Composable function `ModelDisplay` similar to `ClothesDisplay`
 // that you'll implement to handle model selection logic.
