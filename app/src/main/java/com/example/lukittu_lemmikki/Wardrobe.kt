@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 fun WardrobeView(
     onModelSelect: (String) -> Unit,
     onButtonClick: () -> Unit,
-    preferencesManager: PreferencesManager, // Pass PreferencesManager
+    preferencesManager: PreferencesManager,
     darkTheme: Boolean
 ) {
     var showDialog by remember { mutableStateOf(false) }
@@ -81,57 +81,66 @@ fun WardrobeView(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                PetView(selectedModel.value) { hat ->
-                    // Here you might update the state of hats if needed
-                }
+                PetView(selectedModel.value, { hat ->
+                    selectedModel.value = hat
+                    preferencesManager.saveSelectedModel(hat) // Save the selected model with hat
+                }, preferencesManager)
+            }
+        },
+        floatingActionButton = {
+            if (showDialog && dialogType == "model") {
+                ModelDisplay(onModelSelect = { model ->
+                    selectedModel.value = model
+                    showDialog = false
+                    dialogType = "none"
+                }, onDismissRequest = {
+                    showDialog = false
+                    dialogType = "none"
+                })
             }
         }
     )
-
-    if (showDialog && dialogType == "model") {
-        ModelDisplay(onModelSelect = { model ->
-            onModelSelect(model)
-            preferencesManager.saveSelectedModel(model) // Save the selected model when it is selected
-            selectedModel.value = model
-            showDialog = false
-            dialogType = "none"
-        }, onDismissRequest = {
-            showDialog = false
-            dialogType = "none"
-        })
-    }
 }
 
+
+
 @Composable
-fun PetView(selectedModel: String, onSelectHat: (String) -> Unit) {
+fun PetView(selectedModel: String, onSelectHat: (String) -> Unit, preferencesManager: PreferencesManager) {
+    val modelWithHat = remember { mutableStateOf(selectedModel) }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxWidth().padding(16.dp)
     ) {
         Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-            Button(onClick = { onSelectHat("no_hat") }) { Text("No Hat") }
+            Button(onClick = {
+                modelWithHat.value = selectedModel
+                onSelectHat(selectedModel)
+
+            }) { Text("No Hat") }
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = { onSelectHat("hat1") }) { Text("Hat 1") }
+            Button(onClick = {
+                modelWithHat.value = "tophat$selectedModel"
+                onSelectHat(selectedModel)
+            }) { Text("Top Hat") }
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = { onSelectHat("hat2") }) { Text("Hat 2") }
+            Button(onClick = {
+                modelWithHat.value = "propeller$selectedModel"
+                onSelectHat(selectedModel)
+            }) { Text("Propeller") }
         }
         Spacer(modifier = Modifier.height(16.dp)) // Adds space between the buttons and the image
         if (selectedModel.isNotEmpty()) {
-            val modelId = when (selectedModel) {
-                "gekko" -> R.drawable.gekko
-                "deer" -> R.drawable.deer
-                "fish" -> R.drawable.fish
-                "hamster" -> R.drawable.hamster
-                "monkey" -> R.drawable.monkey
-                "octopus" -> R.drawable.octopus
-                "snake" -> R.drawable.snake
-                else -> R.drawable.deer // Default case
+            val modelId = when {
+                modelWithHat.value.startsWith("tophat") -> getModelId("tophat$selectedModel")
+                modelWithHat.value.startsWith("propeller") -> getModelId("propeller$selectedModel")
+                else -> getModelId(selectedModel)
             }
             val modelImage = painterResource(id = modelId)
             Image(
                 painter = modelImage,
-                contentDescription = "Selected Pet Model",
+                contentDescription = "Selected Pet Model with Hat",
                 modifier = Modifier
                     .size(200.dp)
                     .align(Alignment.CenterHorizontally) // Ensures the image is centered within the column
@@ -139,6 +148,30 @@ fun PetView(selectedModel: String, onSelectHat: (String) -> Unit) {
         }
     }
 }
+
+fun getModelId(modelName: String): Int {
+    return when (modelName) {
+        "tophatgekko" -> R.drawable.tophatgekko
+        "propellergekko" -> R.drawable.propellergekko
+        "gekko" -> R.drawable.gekko
+        "fish" -> R.drawable.fish
+        "tophatfish" -> R.drawable.tophatfish
+        "propellerfish" -> R.drawable.propellerfish
+        "bird" -> R.drawable.bird
+        "propellerbird" -> R.drawable.propellerbird
+        "tophatbird" -> R.drawable.tophatbird
+        "hamster" -> R.drawable.hamster
+        "snake" -> R.drawable.snake
+        "octopus" -> R.drawable.octopus
+        "monkey" -> R.drawable.monkey
+        "deer" -> R.drawable.deer
+
+        // Add other model cases as needed
+        else -> R.drawable.assaultpet
+    }
+}
+
+
 
 
 
@@ -170,7 +203,8 @@ fun ModelList(onModelSelect: (String) -> Unit) {
         Model(R.drawable.hamster, "hamster"),
         Model(R.drawable.monkey, "monkey"),
         Model(R.drawable.octopus, "octopus"),
-        Model(R.drawable.snake, "snake")
+        Model(R.drawable.snake, "snake"),
+        Model(R.drawable.bird, "bird")
         // Add more images as needed
     )
 
