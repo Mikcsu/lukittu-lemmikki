@@ -294,14 +294,14 @@ class Map : ComponentActivity() {
                 val progress = derivedStateOf {
                     val stepsInCurrentLevel = totalSteps - totalStepsAtLevelStart
                     // Calculate progress based on steps. Adjust the calculation as needed.
-                    stepsInCurrentLevel.toFloat() / 100
+                    stepsInCurrentLevel.toFloat() / 50
                 }
 
                 LaunchedEffect(progress.value) {
                     if (progress.value >= 1.0f) {
                         Log.d("Progress", "Level up! ${progress.value}")
                         level++
-                        money += 100
+                        money += 1000
                         totalStepsAtLevelStart = totalSteps
                         preferencesManager.saveTotalStepsAtLevelStart(totalStepsAtLevelStart)
                         preferencesManager.saveMoney(money)

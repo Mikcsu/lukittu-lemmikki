@@ -116,34 +116,16 @@ fun ModelDisplay(onModelSelect: (String) -> Unit, onDismissRequest: () -> Unit) 
         }
     )
 }
-data class Model(val id: Int, val name: String, var cost: Int, var bought: Boolean = false)
-
-
 
 @Composable
 fun ModelList(onModelSelect: (String) -> Unit) {
-
     val context = LocalContext.current
     val preferencesManager = PreferencesManager(context)
-    var money = preferencesManager.getMoney()
+    var money by remember { mutableStateOf(preferencesManager.getMoney()) }
 
-    // List of all model images
-    var modelList by remember {
-        mutableStateOf(
-            listOf(
-                Model(R.drawable.gekko, "gekko", 100),
-                Model(R.drawable.deer, "deer", 100),
-                Model(R.drawable.fish, "fish", 100),
-                Model(R.drawable.hamster, "hamster", 200),
-                Model(R.drawable.monkey, "monkey", 500),
-                Model(R.drawable.octopus, "octopus", 500),
-                Model(R.drawable.snake, "snake", 500)
-                // Add more images as needed
-            )
-        )}
-
-
-    val modelRows = modelList.chunked(2)
+    // Use remember to make sure the list recomposes when the bought property changes
+    val models = remember { getModels() }
+    val modelRows = models.chunked(2)
 
     LazyColumn {
         items(modelRows) { rowModels ->
@@ -156,26 +138,26 @@ fun ModelList(onModelSelect: (String) -> Unit) {
                     Column {
                         IconButton(
                             onClick = {
-                                if (money >= model.cost) {
-                                    money -= model.cost
-                                    model.bought = true
-                                    model.cost = 0
-                                    //preferencesManager.saveMoney(money)
-                                    onModelSelect(model.name) // Pass the model name when clicked
-                                    Log.d("ModelList", "Model ${model.name} bought") // Log to console
-
-                                    modelList = modelList.map {
-                                        if (it.name == model.name) {
-                                            it.copy(bought = true, cost = 0)
-                                        } else {
-                                            it
-                                        }
+                                if (!preferencesManager.isModelBought(model.id)) {
+                                    if (money >= model.cost) {
+                                        val updatedMoney = money - model.cost
+                                        preferencesManager.saveMoney(updatedMoney) // Update money in PreferencesManager
+                                        money = updatedMoney // Update the local money state
+                                        onModelSelect(model.name)
+                                        preferencesManager.saveModelBought(model.id, true)
+                                        Log.d(
+                                            "ModelList",
+                                            "Model ${model.name} bought, it costed ${model.cost}"
+                                        )
+                                    } else {
+                                        Log.d("ModelList", "Not enough money to buy ${model.name}")
                                     }
                                 } else {
-                                    Log.d("ModelList", "Not enough money to buy ${model.name}") // Log to console
+                                    onModelSelect(model.name)
+                                    Log.e("paska", "Ei vittu toimi niin ei toimi")
                                 }
                             },
-                            enabled = money >= model.cost
+                            enabled = true
                         ) {
                             Image(
                                 painter = painterResource(id = model.id),
@@ -185,7 +167,7 @@ fun ModelList(onModelSelect: (String) -> Unit) {
                                     .padding(4.dp)
                             )
                         }
-                        Text("Buy for ${model.cost}")
+                        Text(if (preferencesManager.isModelBought(model.id)) "Owned" else "Buy for ${model.cost}")
                     }
                     // Add spacer if there's more than one image in the row
                     if (rowModels.size > 1) {
@@ -199,4 +181,18 @@ fun ModelList(onModelSelect: (String) -> Unit) {
             }
         }
     }
+}
+
+
+
+fun getModels(): List<Model>{
+    return listOf(
+        Model(R.drawable.gekko, "gekko", 100),
+        Model(R.drawable.deer, "deer", 100),
+        Model(R.drawable.fish, "fish", 100),
+        Model(R.drawable.hamster, "hamster", 200),
+        Model(R.drawable.monkey, "monkey", 500),
+        Model(R.drawable.octopus, "octopus", 500),
+        Model(R.drawable.snake, "snake", 500)
+    )
 }

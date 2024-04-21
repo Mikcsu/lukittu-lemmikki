@@ -2,8 +2,41 @@ package com.example.lukittu_lemmikki
 
 import android.content.Context
 
+data class Model(val id: Int, val name: String, var cost: Int, var bought: Boolean = false)
+
 class PreferencesManager(context: Context) {
     private val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+
+
+    // Functions for managing individual models
+    fun saveModelBought(modelId: Int, isBought: Boolean) {
+        sharedPreferences.edit().putBoolean("model_$modelId", isBought).apply()
+    }
+
+    fun isModelBought(modelId: Int): Boolean {
+        return sharedPreferences.getBoolean("model_$modelId", false)
+    }
+
+    // Function for saving the entire model list
+    fun saveModelList(models: List<Model>) {
+        val editor = sharedPreferences.edit()
+        for (model in models) {
+            editor.putBoolean("model_${model.id}", model.bought)
+        }
+        editor.apply()
+    }
+
+    // Function for retrieving the entire model list
+    fun getModelList(): List<Model> {
+        // Define your list of models here, with their respective IDs
+        val modelIds = listOf(R.drawable.gekko, R.drawable.deer, R.drawable.fish, R.drawable.hamster, R.drawable.monkey, R.drawable.octopus, R.drawable.snake)
+        val models = mutableListOf<Model>()
+        for (id in modelIds) {
+            val bought = sharedPreferences.getBoolean("model_$id", false)
+            models.add(Model(id, "model_$id", 100, bought))
+        }
+        return models
+    }
 
     fun saveLevel(level: Int) {
         val editor = sharedPreferences.edit()
@@ -96,3 +129,4 @@ class PreferencesManager(context: Context) {
         return sharedPreferences.getBoolean("skinwalker_mode", false)
     }
 }
+
