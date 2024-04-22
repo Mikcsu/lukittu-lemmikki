@@ -1,6 +1,7 @@
 package com.example.lukittu_lemmikki
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,9 +46,14 @@ fun WardrobeView(
     darkTheme: Boolean
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    var dialogType by remember { mutableStateOf("none") }
+    var dialogType by remember { mutableStateOf("none") } // "none", "clothes", "model"
+    val context = LocalContext.current
+    val preferencesManager = PreferencesManager(context)
+    var money = preferencesManager.getMoney()
+
     val selectedModel = remember { mutableStateOf(preferencesManager.getSelectedModel() ?: "deer") }
     var selectedHat by remember { mutableStateOf(preferencesManager.getSelectedHat() ?: "no_hat") }
+
 
     Scaffold(
         topBar = {
@@ -56,20 +63,23 @@ fun WardrobeView(
                     BackButton(onClick = onButtonClick, darkTheme = darkTheme)
                 },
                 actions = {
-                    IconButton(onClick = {
-                        showDialog = true
-                        dialogType = "model"
-                    }) {
-                        val wardrobeBoxDrawable: Painter = if (darkTheme) {
-                            painterResource(id = R.drawable.wardrobe_box_superior)
-                        } else {
-                            painterResource(id = R.drawable.wardrobe_box)
+                    Column {
+                        IconButton(onClick = {
+                            showDialog = true
+                            dialogType = "model"
+                        }) {
+                            val wardrobeBoxDrawable: Painter = if (darkTheme) {
+                                painterResource(id = R.drawable.wardrobe_box_superior) // Use the dark theme image
+                            } else {
+                                painterResource(id = R.drawable.wardrobe_box) // Use the light theme image
+                            }
+                            Image(
+                                painter = wardrobeBoxDrawable,
+                                contentDescription = null,
+                                Modifier.size(40.dp)
+                            )
                         }
-                        Image(
-                            painter = wardrobeBoxDrawable,
-                            contentDescription = null,
-                            Modifier.size(40.dp)
-                        )
+                        Text("Money: $money")
                     }
                 }
             )
@@ -161,7 +171,7 @@ fun PetView(selectedModel: String, onSelectHat: (String) -> Unit) {
                 selectedModel == "hamster" && selectedHat == "no_hat" -> R.drawable.hamster
                 selectedModel == "monkey" && selectedHat == "no_hat" -> R.drawable.monkey
                 // Add more cases as needed
-                else -> R.drawable.deer// Default case
+                else -> R.drawable.assaultpet// Default case
             }
         }
         val modelImage = painterResource(id = modelId)
@@ -191,26 +201,18 @@ fun ModelDisplay(onModelSelect: (String) -> Unit, onDismissRequest: () -> Unit, 
         }
     )
 }
-data class Model(val id: Int, val name: String)
 
 @Composable
 fun ModelList(onModelSelect: (String) -> Unit, onSelectedHat: (String) -> Unit) {
-    // List of all model images
-    val modelList = listOf(
-        Model(R.drawable.gekko, "gekko"),
-        Model(R.drawable.deer, "deer"),
-        Model(R.drawable.fish, "fish"),
-        Model(R.drawable.hamster, "hamster"),
-        Model(R.drawable.monkey, "monkey"),
-        Model(R.drawable.octopus, "octopus"),
-        Model(R.drawable.snake, "snake"),
-        Model(R.drawable.bird, "bird")
-        // Add more images as needed
-    )
+    val context = LocalContext.current
+    val preferencesManager = PreferencesManager(context)
+    var money by remember { mutableStateOf(preferencesManager.getMoney()) }
 
-    val modelRows = modelList.chunked(2)
+    // Use remember to make sure the list recomposes when the bought property changes
+    val models = remember { getModels() }
+    val modelRows = models.chunked(2)
 
-    LazyColumn {
+    LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
         items(modelRows) { rowModels ->
             Row(
                 modifier = Modifier
@@ -218,21 +220,40 @@ fun ModelList(onModelSelect: (String) -> Unit, onSelectedHat: (String) -> Unit) 
                     .padding(4.dp)
             ) {
                 for (model in rowModels) {
-                    Image(
-                        painter = painterResource(id = model.id),
-                        contentDescription = "Model item",
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(4.dp)
-                            .clickable {
-                                onModelSelect(model.name) // Pass the model name when clicked
-                                onSelectedHat("no_hat") // Reset the selected hat when a model is selected
-                                Log.d("ModelList", "Model ${model.name} clicked") // Log to console
-                            }
-                    )
+                    Column {
+                        IconButton(
+                            onClick = {
+                                if (!preferencesManager.isModelBought(model.id)) {
+                                    if (money >= model.cost) {
+                                        val updatedMoney = money - model.cost
+                                        preferencesManager.saveMoney(updatedMoney) // Update money in PreferencesManager
+                                        money = updatedMoney // Update the local money state
+                                        onModelSelect(model.name)
+                                        preferencesManager.saveModelBought(model.id, true)
+                                        Toast.makeText(context, "${model.name.capitalize()} Bought & Selected!", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        Toast.makeText(context, "Insufficient funds", Toast.LENGTH_SHORT).show()
+                                    }
+                                } else {
+                                    onModelSelect(model.name)
+                                    Toast.makeText(context, "${model.name.capitalize()} Selected!", Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            enabled = true
+                        ) {
+                            Image(
+                                painter = painterResource(id = model.id),
+                                contentDescription = "Model item",
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(4.dp)
+                            )
+                        }
+                        Text(if (preferencesManager.isModelBought(model.id)) "Owned" else "${model.cost}$")
+                    }
                     // Add spacer if there's more than one image in the row
                     if (rowModels.size > 1) {
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(80.dp))
                     }
                 }
                 // If there's only one image in the row, fill the remaining space
@@ -244,3 +265,17 @@ fun ModelList(onModelSelect: (String) -> Unit, onSelectedHat: (String) -> Unit) 
     }
 }
 
+
+
+fun getModels(): List<Model>{
+    return listOf(
+        Model(R.drawable.gekko, "gekko", 100),
+        Model(R.drawable.deer, "deer", 100),
+        Model(R.drawable.fish, "fish", 100),
+        Model(R.drawable.hamster, "hamster", 200),
+        Model(R.drawable.monkey, "monkey", 500),
+        Model(R.drawable.octopus, "octopus", 500),
+        Model(R.drawable.snake, "snake", 500),
+        Model(R.drawable.bird, "bird", 1000)
+    )
+}

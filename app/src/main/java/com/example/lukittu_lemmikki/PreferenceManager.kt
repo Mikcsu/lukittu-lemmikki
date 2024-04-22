@@ -2,8 +2,20 @@ package com.example.lukittu_lemmikki
 
 import android.content.Context
 
+data class Model(val id: Int, val name: String, var cost: Int, var bought: Boolean = false)
+
 class PreferencesManager(context: Context) {
     private val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+
+
+    fun saveModelBought(modelId: Int, isBought: Boolean) {
+        sharedPreferences.edit().putBoolean("model_$modelId", isBought).apply()
+    }
+
+    fun isModelBought(modelId: Int): Boolean {
+        return sharedPreferences.getBoolean("model_$modelId", false)
+    }
+
 
     fun saveLevel(level: Int) {
         val editor = sharedPreferences.edit()
@@ -106,3 +118,4 @@ class PreferencesManager(context: Context) {
         return sharedPreferences.getString("SelectedHat", null)
     }
 }
+
