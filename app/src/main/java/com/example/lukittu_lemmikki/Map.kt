@@ -341,7 +341,7 @@ Row (
 //OO MY GOD
                 LaunchedEffect(progress.value) {
                     if (progress.value >= 1.0f) {
-                        Toast.makeText(contexti, "Level up!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(contexti, "Level up! + 1000$ earned", Toast.LENGTH_SHORT).show()
 
                         Log.d("Progress", "Level up! ${progress.value}")
                         level++

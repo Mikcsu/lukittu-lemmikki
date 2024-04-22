@@ -171,7 +171,7 @@ fun PetView(selectedModel: String, onSelectHat: (String) -> Unit) {
                 selectedModel == "hamster" && selectedHat == "no_hat" -> R.drawable.hamster
                 selectedModel == "monkey" && selectedHat == "no_hat" -> R.drawable.monkey
                 // Add more cases as needed
-                else -> R.drawable.deer// Default case
+                else -> R.drawable.assaultpet// Default case
             }
         }
         val modelImage = painterResource(id = modelId)
@@ -247,11 +247,6 @@ fun ModelList(onModelSelect: (String) -> Unit, onSelectedHat: (String) -> Unit) 
                                 modifier = Modifier
                                     .weight(1f)
                                     .padding(4.dp)
-                                    .clickable {
-                                        onModelSelect(model.name) // Pass the model name when clicked
-                                        onSelectedHat("no_hat") // Reset the selected hat when a model is selected
-                                        Log.d("ModelList", "Model ${model.name} clicked") // Log to console
-                                    }
                             )
                         }
                         Text(if (preferencesManager.isModelBought(model.id)) "Owned" else "${model.cost}$")
