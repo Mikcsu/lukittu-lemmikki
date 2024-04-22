@@ -98,7 +98,7 @@ fun Settings(
                         onDarkThemeChange(false)
                         onModelChange("deer")
                         onSkinwalkerModeChange(false)
-                        preferencesManager.saveSteps(0)
+                        preferencesManager.saveSteps(-1)
                         preferencesManager.saveTotalStepsAtLevelStart(0)
                         preferencesManager.saveLevel(1)
                         Toast.makeText(context, "Preferences reset", Toast.LENGTH_SHORT).show()

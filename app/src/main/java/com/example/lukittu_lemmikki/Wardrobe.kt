@@ -1,8 +1,8 @@
 package com.example.lukittu_lemmikki
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -127,7 +128,7 @@ fun ModelList(onModelSelect: (String) -> Unit) {
     val models = remember { getModels() }
     val modelRows = models.chunked(2)
 
-    LazyColumn {
+    LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
         items(modelRows) { rowModels ->
             Row(
                 modifier = Modifier
@@ -145,16 +146,13 @@ fun ModelList(onModelSelect: (String) -> Unit) {
                                         money = updatedMoney // Update the local money state
                                         onModelSelect(model.name)
                                         preferencesManager.saveModelBought(model.id, true)
-                                        Log.d(
-                                            "ModelList",
-                                            "Model ${model.name} bought, it costed ${model.cost}"
-                                        )
+                                        Toast.makeText(context, "${model.name.capitalize()} Bought & Selected!", Toast.LENGTH_SHORT).show()
                                     } else {
-                                        Log.d("ModelList", "Not enough money to buy ${model.name}")
+                                        Toast.makeText(context, "Insufficient funds", Toast.LENGTH_SHORT).show()
                                     }
                                 } else {
                                     onModelSelect(model.name)
-                                    Log.e("paska", "Ei vittu toimi niin ei toimi")
+                                    Toast.makeText(context, "${model.name.capitalize()} Selected!", Toast.LENGTH_SHORT).show()
                                 }
                             },
                             enabled = true
@@ -167,11 +165,11 @@ fun ModelList(onModelSelect: (String) -> Unit) {
                                     .padding(4.dp)
                             )
                         }
-                        Text(if (preferencesManager.isModelBought(model.id)) "Owned" else "Buy for ${model.cost}")
+                        Text(if (preferencesManager.isModelBought(model.id)) "Owned" else "${model.cost}$")
                     }
                     // Add spacer if there's more than one image in the row
                     if (rowModels.size > 1) {
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(80.dp))
                     }
                 }
                 // If there's only one image in the row, fill the remaining space
@@ -193,6 +191,7 @@ fun getModels(): List<Model>{
         Model(R.drawable.hamster, "hamster", 200),
         Model(R.drawable.monkey, "monkey", 500),
         Model(R.drawable.octopus, "octopus", 500),
-        Model(R.drawable.snake, "snake", 500)
+        Model(R.drawable.snake, "snake", 500),
+        Model(R.drawable.bird, "bird", 1000)
     )
 }

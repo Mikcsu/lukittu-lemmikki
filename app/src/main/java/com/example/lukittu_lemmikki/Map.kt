@@ -16,12 +16,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -36,7 +40,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.example.lukittu_lemmikki.ui.theme.LukittulemmikkiTheme
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -45,11 +52,16 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.GoogleMapOptions
 import com.google.android.gms.maps.MapsInitializer
+import com.google.android.gms.maps.UiSettings
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.GoogleMapFactory
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -59,6 +71,8 @@ val helper = Map()
 
 class Map : ComponentActivity() {
 
+    private lateinit var sensorManager: SensorManager
+    private lateinit var sensorEventListener: SensorEventListener
 
     @Composable
     fun MapView(onButtonClick: () -> Unit, darkTheme: Boolean) {
@@ -80,10 +94,16 @@ class Map : ComponentActivity() {
         if (locationRequired) {
             startLocationUpdates()
         }
+        if (::sensorEventListener.isInitialized) {
+            Log.d("Prekele", "Sensor was not initialized yet")
+            sensorManager.unregisterListener(sensorEventListener)
+        }
+
     }
 
     override fun onPause() {
         super.onPause()
+        //sensorManager.unregisterListener(sensorEventListener)
         locationCallback?.let {
             fusedLocationClient?.removeLocationUpdates(it)
         }
@@ -113,30 +133,25 @@ class Map : ComponentActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        MapsInitializer.initialize(this, MapsInitializer.Renderer.LATEST){
+        val mapOptions = GoogleMapOptions().zoomControlsEnabled(false)
 
+        MapsInitializer.initialize(this, MapsInitializer.Renderer.LATEST){
         }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         setContent {
-
-
             var currentLocation by remember {
                 mutableStateOf(LatLng(0.toDouble(),0.toDouble()))
             }
 
-
             var cameraPositionState = rememberCameraPositionState("0.0, 0.0, 2.0")
-
-
 
             locationCallback = object: LocationCallback() {
                 override fun onLocationResult(p0: LocationResult) {
                     super.onLocationResult(p0)
                     for (location in p0.locations) {
                         currentLocation = LatLng(location.latitude, location.longitude)
-
                     }
                 }
             }
@@ -157,9 +172,12 @@ class Map : ComponentActivity() {
     }
 
 
+
+
     @SuppressLint("UnrememberedMutableState")
     @Composable
     fun LocationScreen(context: Context, currentLocation: LatLng, cameraPositionState: CameraPositionState, onButtonClick: () -> Unit) {
+
 
         val preferencesManager = PreferencesManager(context)
 
@@ -193,16 +211,11 @@ class Map : ComponentActivity() {
         }
 
         DisposableEffect(Unit) {
-            sensorManager.registerListener(
-                sensorEventListener,
-                stepSensor,
-                SensorManager.SENSOR_DELAY_UI
-            )
+            //sensorManager.registerListener( sensorEventListener, stepSensor, SensorManager.SENSOR_DELAY_FASTEST )
             onDispose {
                 sensorManager.unregisterListener(sensorEventListener)
             }
         }
-
 
         val launchMultiplePermissions = rememberLauncherForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()) {
@@ -212,7 +225,6 @@ class Map : ComponentActivity() {
                 locationRequired = true
                 startLocationUpdates()
                 Toast.makeText(context, "Permission Granted!", Toast.LENGTH_SHORT).show()
-
             }
             else
             {
@@ -233,16 +245,15 @@ class Map : ComponentActivity() {
             launchMultiplePermissions.launch(permission)
         }
 
-
-
         Box(modifier = Modifier.fillMaxSize()) {
-
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
+                googleMapOptionsFactory = { GoogleMapOptions().mapType(3) },
+                uiSettings = MapUiSettings(zoomControlsEnabled = false, compassEnabled = false),
                 cameraPositionState = rememberCameraPositionState{
                     position = CameraPosition.fromLatLngZoom(LatLng(65.0142,25.4719),11f)
-                }
-            ) {
+                },
+                ) {
                 Marker(
                     state = MarkerState(
                         position = currentLocation
@@ -252,36 +263,67 @@ class Map : ComponentActivity() {
                 )
             }
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ){
-                BackButton (onClick = onButtonClick, darkTheme = false)
-            }
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ){
-
-
-                Text(text = "${currentLocation.latitude}/${currentLocation.longitude}")
-
-                Button(onClick = {
-                    sessionSteps.value = 0
-                    sensorManager.registerListener(sensorEventListener, stepSensor, SensorManager.SENSOR_DELAY_NORMAL)
-                    Toast.makeText(contexti, "Step counter started", Toast.LENGTH_SHORT).show()
-                }) {
-                    Text(text = "Start step counter")
-                }
-                Button(onClick = {
+                BackButton (onClick = {
+                    onButtonClick()
                     sensorManager.unregisterListener(sensorEventListener)
                     Toast.makeText(contexti, "Step counter stopped", Toast.LENGTH_SHORT).show()
-                }) {
-                    Text(text = "Stop Step Counter")
+                }, darkTheme = false)
+            }
+            Column(
+                modifier = Modifier.fillMaxSize()
+                    .height(20.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+
+            ){
+
+
+                //Text(text = "${currentLocation.latitude}/${currentLocation.longitude}")
+Row (
+    horizontalArrangement = Arrangement.spacedBy(4.dp)
+){
+    Button(onClick = {
+        sessionSteps.value = -1
+        sensorManager.registerListener(
+            sensorEventListener,
+            stepSensor,
+            SensorManager.SENSOR_DELAY_GAME
+        )
+        Toast.makeText(contexti, "Step counter started", Toast.LENGTH_SHORT).show()
+    }) {
+        Text(text = "Start Activity")
+    }
+    Button(onClick = {
+        sensorManager.unregisterListener(sensorEventListener)
+        Toast.makeText(contexti, "Step counter stopped", Toast.LENGTH_SHORT).show()
+    }) {
+        Text(text = "Stop Activity")
+    }
+}
+                totalSteps = preferencesManager.getSteps()
+                Box(
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.LightGray)
+                        .padding(2.dp)
+                ) {
+                    Text(text = "Activity steps: ${sessionSteps.value}")
                 }
 
-                totalSteps = preferencesManager.getSteps()
-                Text(text="Steps this session: ${sessionSteps.value}")
-                Text(text="Total Steps: ${totalSteps}")
+                // Background shape for the texts
+                Box(
+                    modifier = Modifier
+                        .padding(2.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.LightGray)
+                        .padding(2.dp)
+
+                ) {
+                    Text(text = "Total Steps: ${totalSteps}")
+                }
 
 
                 var money = preferencesManager.getMoney()
@@ -296,9 +338,11 @@ class Map : ComponentActivity() {
                     // Calculate progress based on steps. Adjust the calculation as needed.
                     stepsInCurrentLevel.toFloat() / 50
                 }
-
+//OO MY GOD
                 LaunchedEffect(progress.value) {
                     if (progress.value >= 1.0f) {
+                        Toast.makeText(contexti, "Level up!", Toast.LENGTH_SHORT).show()
+
                         Log.d("Progress", "Level up! ${progress.value}")
                         level++
                         money += 1000
@@ -309,9 +353,7 @@ class Map : ComponentActivity() {
                     preferencesManager.saveProgress(progress.value)
                     preferencesManager.saveLevel(level)
                 }
-
                 MyProgressBar(progress.value, level)
-
             }
         }
     }

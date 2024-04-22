@@ -38,7 +38,7 @@ fun ARScreen(model: String, onButtonClick: () -> Unit, darkTheme: Boolean) {
                 modelNode.value = ArModelNode(arSceneView.engine, PlacementMode.INSTANT).apply {
                     loadModelGlbAsync(
                         glbFileLocation = "models/${model}.glb",
-                        scaleToUnits = 0.5f
+                        scaleToUnits = 0.3f
                     ) {
                         // Handle model loading completion or errors here if needed
                     }
@@ -63,7 +63,7 @@ fun ARScreen(model: String, onButtonClick: () -> Unit, darkTheme: Boolean) {
     LaunchedEffect(key1 = model) {
         modelNode.value?.loadModelGlbAsync(
             glbFileLocation = "models/${model}.glb",
-            scaleToUnits = 0.5f
+            scaleToUnits = 0.3f
         ) {
             // Optionally handle completion or errors
         }
