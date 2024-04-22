@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
@@ -141,13 +140,13 @@ fun MyApp(mapNavigation: MapNavigation) {
                 onSettingsButtonClick = { currentView = 5 } // Add this line
             )
             2 -> helper.MapView(onButtonClick = { currentView = 1 }, darkTheme = darkTheme) // Pass darkTheme to MapView
-            3 -> ARScreen(selectedModel, onButtonClick = { currentView = 1 }, darkTheme = darkTheme)
+            3 -> ARScreen(selectedModel, onButtonClick = { currentView = 1 }, darkTheme = darkTheme, preferencesManager = preferencesManager)
             4 -> WardrobeView (
                 onModelSelect = { model ->
                     selectedModel = if (isSkinwalkerMode) "sw$model" else model // Update the selected model
                     preferencesManager.saveSelectedModel(selectedModel) // Save the selected model to shared preferences
                 },
-                onButtonClick = { currentView = 1}, darkTheme = darkTheme
+                onButtonClick = { currentView = 1}, darkTheme = darkTheme, preferencesManager = preferencesManager
             )
             5 -> Settings(
                 darkTheme = darkTheme,

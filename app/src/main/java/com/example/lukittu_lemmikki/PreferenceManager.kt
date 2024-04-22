@@ -107,5 +107,15 @@ class PreferencesManager(context: Context) {
     fun getSkinwalkerMode(): Boolean {
         return sharedPreferences.getBoolean("skinwalker_mode", false)
     }
+
+    fun saveSelectedHat(hat: String) {
+        val editor = sharedPreferences.edit()
+        editor.putString("SelectedHat", hat)
+        editor.apply()
+    }
+
+    fun getSelectedHat(): String? {
+        return sharedPreferences.getString("SelectedHat", null)
+    }
 }
 
