@@ -108,11 +108,11 @@ fun WardrobeView(
 }
 
 @Composable
-fun PetView(selectModel: String, onSelectHat: (String) -> Unit) {
-    val preferencesManager = PreferencesManager(LocalContext.current)
-    val selectedModel = preferencesManager.getSelectedModel() ?: "deer"
-    var selectedHat by remember { mutableStateOf(preferencesManager.getSelectedHat() ?: "no_hat") }
+fun PetView(selectedModel: String, onSelectHat: (String) -> Unit) {
 
+
+    val preferencesManager = PreferencesManager(LocalContext.current)
+    var selectedHat by remember { mutableStateOf(preferencesManager.getSelectedHat() ?: "no_hat")}
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -128,33 +128,33 @@ fun PetView(selectModel: String, onSelectHat: (String) -> Unit) {
             Spacer(modifier = Modifier.width(8.dp))
 
             Button(onClick = {
-                onSelectHat("hat1")
-                selectedHat = "hat1"
+                onSelectHat("propeller")
+                selectedHat = "propeller"
                 preferencesManager.saveSelectedHat("propeller") // Save the selected model with propeller hat
                 Log.d("Hat", "Propeller Hat selected. Model: ${preferencesManager.getSelectedModel()}") // Log to console
-            }, enabled = selectedHat != "hat1") { Text("Propeller Hat") }
+            }, enabled = selectedHat != "propeller") { Text("Propeller Hat") }
 
             Spacer(modifier = Modifier.width(8.dp))
 
             Button(onClick = {
-                onSelectHat("hat2")
-                selectedHat = "hat2"
+                onSelectHat("tophat")
+                selectedHat = "tophat"
                 preferencesManager.saveSelectedHat("tophat") // Save the selected model with top hat
-            }, enabled = selectedHat != "hat2") { Text("Top Hat") }
+            }, enabled = selectedHat != "tophat") { Text("Top Hat") }
         }
         Spacer(modifier = Modifier.height(16.dp)) // Adds space between the buttons and the image
         var modelId = R.drawable.assaultpet // Default value
         if (selectedModel.isNotEmpty()) {
             modelId = when {
                 selectedModel == "gekko" && selectedHat == "no_hat" -> R.drawable.gekko
-                selectedModel == "gekko" && selectedHat == "hat1" -> R.drawable.propellergekko
-                selectedModel == "gekko" && selectedHat == "hat2" -> R.drawable.tophatgekko
+                selectedModel == "gekko" && selectedHat == "propeller" -> R.drawable.propellergekko
+                selectedModel == "gekko" && selectedHat == "tophat" -> R.drawable.tophatgekko
                 selectedModel == "fish" && selectedHat == "no_hat" -> R.drawable.fish
-                selectedModel == "fish" && selectedHat == "hat1" -> R.drawable.propellerfish
-                selectedModel == "fish" && selectedHat == "hat2" -> R.drawable.tophatfish
+                selectedModel == "fish" && selectedHat == "propeller" -> R.drawable.propellerfish
+                selectedModel == "fish" && selectedHat == "tophat" -> R.drawable.tophatfish
                 selectedModel == "bird" && selectedHat == "no_hat" -> R.drawable.bird
-                selectedModel == "bird" && selectedHat == "hat1" -> R.drawable.propellerbird
-                selectedModel == "bird" && selectedHat == "hat2" -> R.drawable.tophatbird
+                selectedModel == "bird" && selectedHat == "propeller" -> R.drawable.propellerbird
+                selectedModel == "bird" && selectedHat == "tophat" -> R.drawable.tophatbird
                 selectedModel == "deer" && selectedHat == "no_hat" -> R.drawable.deer
                 selectedModel == "snake" && selectedHat == "no_hat" -> R.drawable.snake
                 selectedModel == "octopus" && selectedHat == "no_hat" -> R.drawable.octopus
