@@ -140,7 +140,7 @@ fun MyApp(mapNavigation: MapNavigation) {
                 onSettingsButtonClick = { currentView = 5 } // Add this line
             )
             2 -> helper.MapView(onButtonClick = { currentView = 1 }, darkTheme = darkTheme) // Pass darkTheme to MapView
-            3 -> ARScreen(selectedModel, onButtonClick = { currentView = 1 }, darkTheme = darkTheme)
+            3 -> ARScreen(selectedModel, onButtonClick = { currentView = 1 }, darkTheme = darkTheme, preferencesManager = preferencesManager)
             4 -> WardrobeView (
                 onModelSelect = { model ->
                     selectedModel = if (isSkinwalkerMode) "sw$model" else model // Update the selected model

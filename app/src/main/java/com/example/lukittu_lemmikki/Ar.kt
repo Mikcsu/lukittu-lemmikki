@@ -17,7 +17,7 @@ import io.github.sceneview.ar.node.PlacementMode
 //Note: this works now but no depth or correct models inplace
 
 @Composable
-fun ARScreen(model: String, onButtonClick: () -> Unit, darkTheme: Boolean) {
+fun ARScreen(model: String, onButtonClick: () -> Unit, darkTheme: Boolean, preferencesManager: PreferencesManager) {
     val nodes = remember {
         mutableListOf<ArNode>()
     }
@@ -60,13 +60,16 @@ fun ARScreen(model: String, onButtonClick: () -> Unit, darkTheme: Boolean) {
 
     }
 
-    LaunchedEffect(key1 = model) {
+    val selectedHat = preferencesManager.getSelectedHat() ?: "no_hat"
+    val modelName = if (selectedHat == "no_hat") model else "$selectedHat$model"
+
+    LaunchedEffect(key1 = modelName) {
         modelNode.value?.loadModelGlbAsync(
-            glbFileLocation = "models/${model}.glb",
+            glbFileLocation = "models/${modelName}.glb",
             scaleToUnits = 0.5f
         ) {
             // Optionally handle completion or errors
         }
-        Log.d("ARLoading", "Loading model: $model")
+        Log.d("ARLoading", "Loading model: $modelName")
     }
 }

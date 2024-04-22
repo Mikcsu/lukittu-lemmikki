@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
@@ -95,7 +96,10 @@ fun WardrobeView(
             selectedModel.value = model
             showDialog = false
             dialogType = "none"
-        }, onDismissRequest = {
+        }, onSelectHat = { hat ->
+            // Handle hat selection here if needed
+
+        },onDismissRequest = {
             showDialog = false
             dialogType = "none"
         })
@@ -105,6 +109,7 @@ fun WardrobeView(
 @Composable
 fun PetView(selectedModel: String, onSelectHat: (String) -> Unit) {
     var selectedHat by remember { mutableStateOf("no_hat") }
+    val preferencesManager = PreferencesManager(LocalContext.current)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -115,6 +120,7 @@ fun PetView(selectedModel: String, onSelectHat: (String) -> Unit) {
             Button(onClick = {
                 onSelectHat("no_hat")
                 selectedHat = "no_hat"
+                preferencesManager.saveSelectedHat("no_hat") // Save the selected model when no hat is selected
             }, enabled = selectedHat != "no_hat") { Text("No Hat") }
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -122,44 +128,48 @@ fun PetView(selectedModel: String, onSelectHat: (String) -> Unit) {
             Button(onClick = {
                 onSelectHat("hat1")
                 selectedHat = "hat1"
-            }, enabled = selectedHat != "hat1") { Text("Hat 1") }
+                preferencesManager.saveSelectedHat("propeller") // Save the selected model with propeller hat
+                Log.d("Hat", "Propeller Hat selected. Model: ${preferencesManager.getSelectedModel()}") // Log to console
+            }, enabled = selectedHat != "hat1") { Text("Propeller Hat") }
 
             Spacer(modifier = Modifier.width(8.dp))
 
             Button(onClick = {
                 onSelectHat("hat2")
                 selectedHat = "hat2"
-            }, enabled = selectedHat != "hat2") { Text("Hat 2") }
+                preferencesManager.saveSelectedHat("tophat") // Save the selected model with top hat
+            }, enabled = selectedHat != "hat2") { Text("Top Hat") }
         }
         Spacer(modifier = Modifier.height(16.dp)) // Adds space between the buttons and the image
+        var modelId = R.drawable.assaultpet // Default value
         if (selectedModel.isNotEmpty()) {
-            val modelId = when (selectedModel) {
-                "gekko" -> R.drawable.gekko
-                "tophatgekko" -> R.drawable.tophatgekko
-                "propellergekko" -> R.drawable.propellergekko
-                "deer" -> R.drawable.deer
-                "fish" -> R.drawable.fish
-                "tophatfish" -> R.drawable.tophatfish
-                "propellerfish" -> R.drawable.propellerfish
-                "hamster" -> R.drawable.hamster
-                "monkey" -> R.drawable.monkey
-                "octopus" -> R.drawable.octopus
-                "snake" -> R.drawable.snake
-                "bird" -> R.drawable.bird
-                "tophatbird" -> R.drawable.tophatbird
-                "propellerbird" -> R.drawable.propellerbird
-
-                else -> R.drawable.assaultpet // Default case
+            modelId = when {
+                selectedModel == "gekko" && selectedHat == "no_hat" -> R.drawable.gekko
+                selectedModel == "gekko" && selectedHat == "hat1" -> R.drawable.propellergekko
+                selectedModel == "gekko" && selectedHat == "hat2" -> R.drawable.tophatgekko
+                selectedModel == "fish" && selectedHat == "no_hat" -> R.drawable.fish
+                selectedModel == "fish" && selectedHat == "hat1" -> R.drawable.propellerfish
+                selectedModel == "fish" && selectedHat == "hat2" -> R.drawable.tophatfish
+                selectedModel == "bird" && selectedHat == "no_hat" -> R.drawable.bird
+                selectedModel == "bird" && selectedHat == "hat1" -> R.drawable.propellerbird
+                selectedModel == "bird" && selectedHat == "hat2" -> R.drawable.tophatbird
+                selectedModel == "deer" && selectedHat == "no_hat" -> R.drawable.deer
+                selectedModel == "snake" && selectedHat == "no_hat" -> R.drawable.snake
+                selectedModel == "octopus" && selectedHat == "no_hat" -> R.drawable.octopus
+                selectedModel == "hamster" && selectedHat == "no_hat" -> R.drawable.hamster
+                selectedModel == "monkey" && selectedHat == "no_hat" -> R.drawable.monkey
+                // Add more cases as needed
+                else -> R.drawable.deer// Default case
             }
-            val modelImage = painterResource(id = modelId)
-            Image(
-                painter = modelImage,
-                contentDescription = "Selected Pet Model",
-                modifier = Modifier
-                    .size(200.dp)
-                    .align(Alignment.CenterHorizontally) // Ensures the image is centered within the column
-            )
         }
+        val modelImage = painterResource(id = modelId)
+        Image(
+            painter = modelImage,
+            contentDescription = "Selected Pet Model",
+            modifier = Modifier
+                .size(200.dp)
+                .align(Alignment.CenterHorizontally) // Ensures the image is centered within the column
+        )
     }
 }
 
@@ -169,11 +179,11 @@ fun PetView(selectedModel: String, onSelectHat: (String) -> Unit) {
 // Assume you have a Composable function `ModelDisplay` similar to `ClothesDisplay`
 // that you'll implement to handle model selection logic.
 @Composable
-fun ModelDisplay(onModelSelect: (String) -> Unit, onDismissRequest: () -> Unit) {
+fun ModelDisplay(onModelSelect: (String) -> Unit, onDismissRequest: () -> Unit, onSelectHat: (String) -> Unit) {
     AlertDialog(
         onDismissRequest = onDismissRequest,
         title = { Text("Model Selection") },
-        text = { ModelList(onModelSelect) },
+        text = { ModelList(onModelSelect, onSelectHat) },
         confirmButton = {
             Button(onClick = onDismissRequest) { Text("Close") }
         }
@@ -182,7 +192,7 @@ fun ModelDisplay(onModelSelect: (String) -> Unit, onDismissRequest: () -> Unit) 
 data class Model(val id: Int, val name: String)
 
 @Composable
-fun ModelList(onModelSelect: (String) -> Unit) {
+fun ModelList(onModelSelect: (String) -> Unit, onSelectedHat: (String) -> Unit) {
     // List of all model images
     val modelList = listOf(
         Model(R.drawable.gekko, "gekko"),
@@ -191,7 +201,8 @@ fun ModelList(onModelSelect: (String) -> Unit) {
         Model(R.drawable.hamster, "hamster"),
         Model(R.drawable.monkey, "monkey"),
         Model(R.drawable.octopus, "octopus"),
-        Model(R.drawable.snake, "snake")
+        Model(R.drawable.snake, "snake"),
+        Model(R.drawable.bird, "bird")
         // Add more images as needed
     )
 
@@ -213,6 +224,7 @@ fun ModelList(onModelSelect: (String) -> Unit) {
                             .padding(4.dp)
                             .clickable {
                                 onModelSelect(model.name) // Pass the model name when clicked
+                                onSelectedHat("no_hat") // Reset the selected hat when a model is selected
                                 Log.d("ModelList", "Model ${model.name} clicked") // Log to console
                             }
                     )
