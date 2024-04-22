@@ -65,6 +65,7 @@ fun WardrobeView(
                 actions = {
                     Column {
                         IconButton(onClick = {
+                            preferencesManager.saveModelBought(2131165297, true)
                             showDialog = true
                             dialogType = "model"
                         }) {
@@ -126,31 +127,31 @@ fun PetView(selectedModel: String, onSelectHat: (String) -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth().padding(16.dp)
+        modifier = Modifier.fillMaxWidth().padding(5.dp)
     ) {
-        Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+        Row(horizontalArrangement = Arrangement.Center,verticalAlignment = Alignment.CenterVertically,modifier = Modifier.fillMaxWidth()) {
             Button(onClick = {
                 onSelectHat("no_hat")
                 selectedHat = "no_hat"
                 preferencesManager.saveSelectedHat("no_hat") // Save the selected model when no hat is selected
             }, enabled = selectedHat != "no_hat") { Text("No Hat") }
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(2.dp))
 
             Button(onClick = {
                 onSelectHat("propeller")
                 selectedHat = "propeller"
                 preferencesManager.saveSelectedHat("propeller") // Save the selected model with propeller hat
                 Log.d("Hat", "Propeller Hat selected. Model: ${preferencesManager.getSelectedModel()}") // Log to console
-            }, enabled = selectedHat != "propeller") { Text("Propeller Hat") }
+            }, enabled = selectedHat != "propeller") { Text("Propeller") }
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(2.dp))
 
             Button(onClick = {
                 onSelectHat("tophat")
                 selectedHat = "tophat"
                 preferencesManager.saveSelectedHat("tophat") // Save the selected model with top hat
-            }, enabled = selectedHat != "tophat") { Text("Top Hat") }
+            }, enabled = selectedHat != "tophat") { Text("Tophat") }
         }
         Spacer(modifier = Modifier.height(16.dp)) // Adds space between the buttons and the image
         var modelId = R.drawable.assaultpet // Default value
