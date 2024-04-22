@@ -46,6 +46,7 @@ fun WardrobeView(
     var showDialog by remember { mutableStateOf(false) }
     var dialogType by remember { mutableStateOf("none") }
     val selectedModel = remember { mutableStateOf(preferencesManager.getSelectedModel() ?: "deer") }
+    var selectedHat by remember { mutableStateOf(preferencesManager.getSelectedHat() ?: "no_hat") }
 
     Scaffold(
         topBar = {
@@ -107,9 +108,10 @@ fun WardrobeView(
 }
 
 @Composable
-fun PetView(selectedModel: String, onSelectHat: (String) -> Unit) {
-    var selectedHat by remember { mutableStateOf("no_hat") }
+fun PetView(selectModel: String, onSelectHat: (String) -> Unit) {
     val preferencesManager = PreferencesManager(LocalContext.current)
+    val selectedModel = preferencesManager.getSelectedModel() ?: "deer"
+    var selectedHat by remember { mutableStateOf(preferencesManager.getSelectedHat() ?: "no_hat") }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
