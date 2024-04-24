@@ -9,16 +9,15 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.BODY_SENSORS" />
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
-
-
-    <uses-feature android:name="android.hardware.sensor" />
-
-
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="true" />
-    <uses-feature android:name="com.google.ar.core.depth" />
     <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature android:name="android.hardware.camera" android:required="true" />
+    <uses-feature android:name="com.google.ar.core.depth" />
+
+    <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_map_api"/>
+    <meta-data android:name="com.google.ar.core" android:value="optional" />
+
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -48,10 +47,7 @@
             <!-- Removed LAUNCHER intent filter -->
         </activity>
 
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_map_api"/>
 
-
-        <meta-data android:name="com.google.ar.core" android:value="optional" />
 
     </application>
 

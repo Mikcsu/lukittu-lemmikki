@@ -3,7 +3,6 @@ package com.example.lukittu_lemmikki
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,7 +23,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,43 +34,41 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WardrobeView(
-    onModelSelect: (String) -> Unit,
-    onButtonClick: () -> Unit,
-    preferencesManager: PreferencesManager, // Pass PreferencesManager
+    onModelSelect: (String) -> Unit, //What model has been selected
+    onButtonClick: () -> Unit, //Back to mainmenu
+    preferencesManager: PreferencesManager, //Pass PreferencesManager
     darkTheme: Boolean
 ) {
-    var showDialog by remember { mutableStateOf(false) }
-    var dialogType by remember { mutableStateOf("none") } // "none", "clothes", "model"
-    val context = LocalContext.current
-    val preferencesManager = PreferencesManager(context)
-    var money = preferencesManager.getMoney()
+    var showDialog by remember { mutableStateOf(false) } //Show dialog by true
+    var dialogType by remember { mutableStateOf("none") } //For different types: "none", "clothes", "model"
+    val context = LocalContext.current //Context this
+    val preferencesManager = PreferencesManager(context) //Pass preferencesManager in this context
+    var money = preferencesManager.getMoney() //For money text and buy logic
 
-    val selectedModel = remember { mutableStateOf(preferencesManager.getSelectedModel() ?: "deer") }
-    var selectedHat by remember { mutableStateOf(preferencesManager.getSelectedHat() ?: "no_hat") }
-
+    val selectedModel = remember { mutableStateOf(preferencesManager.getSelectedModel() ?: "deer") } //Selected model, if null -> Deer
+    var selectedHat by remember { mutableStateOf(preferencesManager.getSelectedHat() ?: "no_hat") } //Not used
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
+            CenterAlignedTopAppBar(//Title
                 title = { Text("Wardrobe") },
-                navigationIcon = {
+                navigationIcon = { //Back to mainmenu button
                     BackButton(onClick = onButtonClick, darkTheme = darkTheme)
                 },
                 actions = {
                     Column {
-                        IconButton(onClick = {
+                        IconButton(onClick = { //Open the dialog for models, buy the Deer default model
                             preferencesManager.saveModelBought(2131165297, true)
                             showDialog = true
                             dialogType = "model"
                         }) {
                             val wardrobeBoxDrawable: Painter = if (darkTheme) {
-                                painterResource(id = R.drawable.wardrobe_box_superior) // Use the dark theme image
+                                painterResource(id = R.drawable.wardrobe_box_superior) //Use the dark theme image
                             } else {
-                                painterResource(id = R.drawable.wardrobe_box) // Use the light theme image
+                                painterResource(id = R.drawable.wardrobe_box) //Use the light theme image
                             }
                             Image(
                                 painter = wardrobeBoxDrawable,
@@ -80,7 +76,7 @@ fun WardrobeView(
                                 Modifier.size(40.dp)
                             )
                         }
-                        Text("Money: $money")
+                        Text("Money: $money") //Show money
                     }
                 }
             )
@@ -95,22 +91,21 @@ fun WardrobeView(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 PetView(selectedModel.value) { hat ->
-                    // Here you might update the state of hats if needed
+                    //Here you might update the state of hats if needed
                 }
             }
         }
     )
 
-    if (showDialog && dialogType == "model") {
+    if (showDialog && dialogType == "model") { //Renders the content to the selected dialog
         ModelDisplay(onModelSelect = { model ->
             onModelSelect(model)
-            preferencesManager.saveSelectedModel(model) // Save the selected model when it is selected
+            preferencesManager.saveSelectedModel(model) //Save the selected model when it is selected
             selectedModel.value = model
             showDialog = false
             dialogType = "none"
         }, onSelectHat = { hat ->
-            // Handle hat selection here if needed
-
+            //Handle hat selection here if needed
         },onDismissRequest = {
             showDialog = false
             dialogType = "none"
@@ -118,9 +113,8 @@ fun WardrobeView(
     }
 }
 
-@Composable
+@Composable //The mainscreen of Wardrobe, displaying animal image and their hat buttons
 fun PetView(selectedModel: String, onSelectHat: (String) -> Unit) {
-
 
     val preferencesManager = PreferencesManager(LocalContext.current)
     var selectedHat by remember { mutableStateOf(preferencesManager.getSelectedHat() ?: "no_hat")}
@@ -130,33 +124,32 @@ fun PetView(selectedModel: String, onSelectHat: (String) -> Unit) {
         modifier = Modifier.fillMaxWidth().padding(5.dp)
     ) {
         Row(horizontalArrangement = Arrangement.Center,verticalAlignment = Alignment.CenterVertically,modifier = Modifier.fillMaxWidth()) {
-            Button(onClick = {
+            Button(onClick = { //Remove the hat button
                 onSelectHat("no_hat")
                 selectedHat = "no_hat"
-                preferencesManager.saveSelectedHat("no_hat") // Save the selected model when no hat is selected
-            }, enabled = selectedHat != "no_hat") { Text("No Hat") }
+                preferencesManager.saveSelectedHat("no_hat") //Save the selected model when no hat is selected
+            }, enabled = selectedHat != "no_hat") { Text("No Hat") }//Disables the button when the current is selected
 
             Spacer(modifier = Modifier.width(2.dp))
 
-            Button(onClick = {
+            Button(onClick = { //Propeller hat button
                 onSelectHat("propeller")
                 selectedHat = "propeller"
-                preferencesManager.saveSelectedHat("propeller") // Save the selected model with propeller hat
-                Log.d("Hat", "Propeller Hat selected. Model: ${preferencesManager.getSelectedModel()}") // Log to console
-            }, enabled = selectedHat != "propeller") { Text("Propeller") }
+                preferencesManager.saveSelectedHat("propeller") //Save the selected model with propeller hat
+            }, enabled = selectedHat != "propeller") { Text("Propeller") }//Disables the button when the current hat is selected
 
             Spacer(modifier = Modifier.width(2.dp))
 
-            Button(onClick = {
+            Button(onClick = { //Tophat button
                 onSelectHat("tophat")
                 selectedHat = "tophat"
                 preferencesManager.saveSelectedHat("tophat") // Save the selected model with top hat
-            }, enabled = selectedHat != "tophat") { Text("Tophat") }
+            }, enabled = selectedHat != "tophat") { Text("Tophat") } //Disables the button when the current hat is selected
         }
-        Spacer(modifier = Modifier.height(16.dp)) // Adds space between the buttons and the image
-        var modelId = R.drawable.assaultpet // Default value
+        Spacer(modifier = Modifier.height(16.dp)) //Adds space between the buttons and the image
+        var modelId = R.drawable.assaultpet //Default image if no png exists to the animal with hat
         if (selectedModel.isNotEmpty()) {
-            modelId = when {
+            modelId = when { //Models and their respective images to their hats, not all models have hats
                 selectedModel == "gekko" && selectedHat == "no_hat" -> R.drawable.gekko
                 selectedModel == "gekko" && selectedHat == "propeller" -> R.drawable.propellergekko
                 selectedModel == "gekko" && selectedHat == "tophat" -> R.drawable.tophatgekko
@@ -172,47 +165,44 @@ fun PetView(selectedModel: String, onSelectHat: (String) -> Unit) {
                 selectedModel == "hamster" && selectedHat == "no_hat" -> R.drawable.hamster
                 selectedModel == "monkey" && selectedHat == "no_hat" -> R.drawable.monkey
                 // Add more cases as needed
-                else -> R.drawable.assaultpet// Default case
+                else -> R.drawable.assaultpet//Default image when no hat exists
             }
         }
         val modelImage = painterResource(id = modelId)
-        Image(
+        Image( //Paint the image for the animal with or without hats, or default image
             painter = modelImage,
             contentDescription = "Selected Pet Model",
             modifier = Modifier
                 .size(200.dp)
-                .align(Alignment.CenterHorizontally) // Ensures the image is centered within the column
+                .align(Alignment.CenterHorizontally) //Ensures the image is centered within the column
         )
     }
 }
 
 
-
-
-// Assume you have a Composable function `ModelDisplay` similar to `ClothesDisplay`
-// that you'll implement to handle model selection logic.
-@Composable
+@Composable //Render the alerDialog
 fun ModelDisplay(onModelSelect: (String) -> Unit, onDismissRequest: () -> Unit, onSelectHat: (String) -> Unit) {
     AlertDialog(
         onDismissRequest = onDismissRequest,
-        title = { Text("Model Selection") },
-        text = { ModelList(onModelSelect, onSelectHat) },
+        title = { Text("Model Selection") }, //Title
+        text = { ModelList(onModelSelect, onSelectHat) }, //Models
         confirmButton = {
             Button(onClick = onDismissRequest) { Text("Close") }
         }
     )
 }
 
-@Composable
+@Composable //Model list
 fun ModelList(onModelSelect: (String) -> Unit, onSelectedHat: (String) -> Unit) {
     val context = LocalContext.current
     val preferencesManager = PreferencesManager(context)
     var money by remember { mutableStateOf(preferencesManager.getMoney()) }
 
-    // Use remember to make sure the list recomposes when the bought property changes
+    //Use remember to make sure the list recomposes when the bought property changes
     val models = remember { getModels() }
     val modelRows = models.chunked(2)
 
+    //Display the selectable models images in columns
     LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
         items(modelRows) { rowModels ->
             Row(
@@ -222,27 +212,27 @@ fun ModelList(onModelSelect: (String) -> Unit, onSelectedHat: (String) -> Unit) 
             ) {
                 for (model in rowModels) {
                     Column {
-                        IconButton(
+                        IconButton( //Animal model image as a pressable button
                             onClick = {
-                                if (!preferencesManager.isModelBought(model.id)) {
-                                    if (money >= model.cost) {
-                                        val updatedMoney = money - model.cost
-                                        preferencesManager.saveMoney(updatedMoney) // Update money in PreferencesManager
-                                        money = updatedMoney // Update the local money state
+                                if (!preferencesManager.isModelBought(model.id)) { //If user owns the animal it can be bought
+                                    if (money >= model.cost) { //If user has required amount of money
+                                        val updatedMoney = money - model.cost //Deduct money
+                                        preferencesManager.saveMoney(updatedMoney) //Update money in PreferencesManager
+                                        money = updatedMoney //Update the local money state
                                         onModelSelect(model.name)
-                                        preferencesManager.saveModelBought(model.id, true)
-                                        Toast.makeText(context, "${model.name.capitalize()} Bought & Selected!", Toast.LENGTH_SHORT).show()
+                                        preferencesManager.saveModelBought(model.id, true) //Save into preferencesManager the model bought
+                                        Toast.makeText(context, "${model.name.capitalize()} Bought & Selected!", Toast.LENGTH_SHORT).show() //Let the user know
                                     } else {
-                                        Toast.makeText(context, "Insufficient funds", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "Insufficient funds", Toast.LENGTH_SHORT).show() //Let the user know
                                     }
-                                } else {
+                                } else { //If the user already owns the model, it will only be passed as a selected model
                                     onModelSelect(model.name)
                                     Toast.makeText(context, "${model.name.capitalize()} Selected!", Toast.LENGTH_SHORT).show()
                                 }
                             },
-                            enabled = true
+                            enabled = true //The animal image buttons are always enabled
                         ) {
-                            Image(
+                            Image(  //What model is displayed in the respective spot
                                 painter = painterResource(id = model.id),
                                 contentDescription = "Model item",
                                 modifier = Modifier
@@ -250,14 +240,14 @@ fun ModelList(onModelSelect: (String) -> Unit, onSelectedHat: (String) -> Unit) 
                                     .padding(4.dp)
                             )
                         }
-                        Text(if (preferencesManager.isModelBought(model.id)) "Owned" else "${model.cost}$")
+                        Text(if (preferencesManager.isModelBought(model.id)) "Owned" else "${model.cost}$") //Display price or owned depending on the models state
                     }
-                    // Add spacer if there's more than one image in the row
+                    //Add spacer if there's more than one image in the row
                     if (rowModels.size > 1) {
                         Spacer(modifier = Modifier.width(80.dp))
                     }
                 }
-                // If there's only one image in the row, fill the remaining space
+                //If there's only one image in the row, fill the remaining space
                 if (rowModels.size == 1) {
                     Spacer(modifier = Modifier.weight(1f))
                 }

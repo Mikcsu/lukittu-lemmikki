@@ -14,61 +14,59 @@ import io.github.sceneview.ar.node.ArModelNode
 import io.github.sceneview.ar.node.ArNode
 import io.github.sceneview.ar.node.PlacementMode
 
-//Note: this works now but no depth or correct models inplace
+//This works but no depth inplace
 
 @Composable
 fun ARScreen(model: String, onButtonClick: () -> Unit, darkTheme: Boolean, preferencesManager: PreferencesManager) {
-    val nodes = remember {
-        mutableListOf<ArNode>()
-    }
-    val modelNode = remember {
-        mutableStateOf<ArModelNode?>(null)
-    }
-    val placeModelButton = remember {
-        mutableStateOf(false)
-    }
+    val nodes = remember { mutableListOf<ArNode>() }
+    val modelNode = remember { mutableStateOf<ArModelNode?>(null) }
+    val placeModelButton = remember { mutableStateOf(false) }
+
     Box(modifier = Modifier.fillMaxSize()) {
         ARScene(
             modifier = Modifier.fillMaxSize(),
             nodes = nodes,
             planeRenderer = true,
-            onCreate = { arSceneView ->
-                arSceneView.lightEstimationMode = Config.LightEstimationMode.DISABLED
-                arSceneView.planeRenderer.isShadowReceiver = false
-                modelNode.value = ArModelNode(arSceneView.engine, PlacementMode.INSTANT).apply {
-                    loadModelGlbAsync(
+            onCreate = { arSceneView -> //On creation instantly placing the model.glb
+                arSceneView.lightEstimationMode = Config.LightEstimationMode.DISABLED //Turn off lighting
+                arSceneView.planeRenderer.isShadowReceiver = false //Turn off shadows
+                modelNode.value = ArModelNode(arSceneView.engine, PlacementMode.INSTANT).apply { //
+                    loadModelGlbAsync( //Call the model loading
+                        //What model to load and the scale of the model, (1f was huge)
                         glbFileLocation = "models/${model}.glb",
                         scaleToUnits = 0.3f
                     ) {
-                        // Handle model loading completion or errors here if needed
+                        //Handle model loading completion or errors here if needed
                     }
-                    onAnchorChanged = {
+                    onAnchorChanged = {//model can be dragged by finger which changes anchor
                         placeModelButton.value = !isAnchored
                     }
-                    onHitResult = { node, hitResult ->
+                    onHitResult = { node, hitResult -> //Finger press = On Hit
                         placeModelButton.value = node.isTracking
                     }
                 }
                 nodes.add(modelNode.value!!)
             },
-            onSessionCreate = {
+            onSessionCreate = { //hides the AR scenes "GRID"
                 false.also { planeRenderer.isVisible = it }
             }
         )
-
+        //Backbutton to mainmenu
         BackButton(onClick = onButtonClick, darkTheme = darkTheme)
-
     }
 
+    //Handle the model loading when the modelname changes
+    //Add the respective hat in front of the modelname if hat is selected
     val selectedHat = preferencesManager.getSelectedHat() ?: "no_hat"
     val modelName = if (selectedHat == "no_hat") model else "$selectedHat$model"
 
-    LaunchedEffect(key1 = modelName) {
-        modelNode.value?.loadModelGlbAsync(
+    LaunchedEffect(key1 = modelName) { //Listener for modelname
+        modelNode.value?.loadModelGlbAsync( //Call for the model loading
+            //What model to load and the scale of the model, (1f was huge)
             glbFileLocation = "models/${modelName}.glb",
             scaleToUnits = 0.3f
         ) {
-            // Optionally handle completion or errors
+            //Optionally handle completion or errors
         }
         Log.d("ARLoading", "Loading model: $modelName")
     }

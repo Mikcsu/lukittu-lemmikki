@@ -7,7 +7,7 @@ data class Model(val id: Int, val name: String, var cost: Int, var bought: Boole
 class PreferencesManager(context: Context) {
     private val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
 
-
+    //Wardrobe model buy logic
     fun saveModelBought(modelId: Int, isBought: Boolean) {
         sharedPreferences.edit().putBoolean("model_$modelId", isBought).apply()
     }
@@ -17,6 +17,7 @@ class PreferencesManager(context: Context) {
     }
 
 
+    //Player progress logic
     fun saveLevel(level: Int) {
         val editor = sharedPreferences.edit()
         editor.putInt("level", level)
@@ -32,7 +33,7 @@ class PreferencesManager(context: Context) {
         editor.putFloat("progress", progress)
         editor.apply()
     }
-    fun addProgress(additionalProgress: Float) {
+    /*fun addProgress(additionalProgress: Float) {
         val currentProgress = getProgress()
         val newProgress = currentProgress + additionalProgress
         saveProgress(newProgress)
@@ -40,7 +41,7 @@ class PreferencesManager(context: Context) {
 
     fun getProgress(): Float {
         return sharedPreferences.getFloat("progress", 0.0f)
-    }
+    }*/
 
     fun saveSteps(steps: Int) {
         val editor = sharedPreferences.edit()
@@ -72,6 +73,7 @@ class PreferencesManager(context: Context) {
         return sharedPreferences.getInt("TotalStepsAtLevelStart", 0)
     }
 
+    //Wardrobe model selection logic
     fun saveSelectedModel(model: String) {
         val editor = sharedPreferences.edit()
         editor.putString("SelectedModel", model)
@@ -82,22 +84,22 @@ class PreferencesManager(context: Context) {
         return sharedPreferences.getString("SelectedModel", null)
     }
 
+    //Dark theme
     fun saveDarkTheme(isDarkTheme: Boolean) {
         val editor = sharedPreferences.edit()
         editor.putBoolean("DarkTheme", isDarkTheme)
         editor.apply()
     }
-
     fun getDarkTheme(): Boolean {
         return sharedPreferences.getBoolean("DarkTheme", false) // Default value is false
     }
-
+    //Reset the applications sharedPreferences
     fun reset() {
         val editor = sharedPreferences.edit()
         editor.clear()
         editor.apply()
     }
-
+    //Bonus setting
     fun saveSkinwalkerMode(isSkinwalkerMode: Boolean) {
         val editor = sharedPreferences.edit()
         editor.putBoolean("skinwalker_mode", isSkinwalkerMode)
@@ -107,7 +109,7 @@ class PreferencesManager(context: Context) {
     fun getSkinwalkerMode(): Boolean {
         return sharedPreferences.getBoolean("skinwalker_mode", false)
     }
-
+    //Model hat selection
     fun saveSelectedHat(hat: String) {
         val editor = sharedPreferences.edit()
         editor.putString("SelectedHat", hat)

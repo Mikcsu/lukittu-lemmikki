@@ -52,74 +52,67 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMapOptions
 import com.google.android.gms.maps.MapsInitializer
-import com.google.android.gms.maps.UiSettings
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.GoogleMapFactory
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
-
 val helper = Map()
 
 class Map : ComponentActivity() {
 
+    //Declare the sensors
     private lateinit var sensorManager: SensorManager
     private lateinit var sensorEventListener: SensorEventListener
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationCallback: LocationCallback
+    private var locationRequired: Boolean = false
 
     @Composable
     fun MapView(onButtonClick: () -> Unit, darkTheme: Boolean) {
 
     }
 
-
+    //Permissions for Location access
     private val permission = arrayOf(
         android.Manifest.permission.ACCESS_COARSE_LOCATION,
         android.Manifest.permission.ACCESS_FINE_LOCATION
     )
 
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var locationCallback: LocationCallback
-    private var locationRequired: Boolean = false
 
-    override fun onResume() {
+    override fun onResume() {//Resume the location updates and unregister the stepsensor if initialization is not null
         super.onResume()
         if (locationRequired) {
             startLocationUpdates()
         }
         if (::sensorEventListener.isInitialized) {
-            Log.d("Prekele", "Sensor was not initialized yet")
             sensorManager.unregisterListener(sensorEventListener)
         }
-
     }
 
-    override fun onPause() {
+    override fun onPause() { //Stop location updates
         super.onPause()
-        //sensorManager.unregisterListener(sensorEventListener)
         locationCallback?.let {
             fusedLocationClient?.removeLocationUpdates(it)
         }
     }
 
     @SuppressLint("MissingPermission")
-    fun startLocationUpdates() {
+    fun startLocationUpdates() { //Start Location updates
         locationCallback?.let {
             val locationRequest = LocationRequest.Builder(
-                Priority.PRIORITY_HIGH_ACCURACY, 100
+                Priority.PRIORITY_HIGH_ACCURACY, 100 //Prioritize high accuracy with 100ms intervals
             )
-                .setWaitForAccurateLocation(false)
+                .setWaitForAccurateLocation(false) //Start locationupdates with coarser location
                 .setMinUpdateIntervalMillis(3000)
                 .setMaxUpdateDelayMillis(100)
                 .build()
-
             fusedLocationClient?.requestLocationUpdates(
                 locationRequest,
                 it,
@@ -129,39 +122,34 @@ class Map : ComponentActivity() {
 
     }
 
-
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val mapOptions = GoogleMapOptions().zoomControlsEnabled(false)
-
+        //Initialize the map onCreate
         MapsInitializer.initialize(this, MapsInitializer.Renderer.LATEST){
         }
-
+        //Declare the location client
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         setContent {
-            var currentLocation by remember {
+            var currentLocation by remember { //Current location need Latitude and Longitude
                 mutableStateOf(LatLng(0.toDouble(),0.toDouble()))
             }
-
             var cameraPositionState = rememberCameraPositionState("0.0, 0.0, 2.0")
 
             locationCallback = object: LocationCallback() {
                 override fun onLocationResult(p0: LocationResult) {
                     super.onLocationResult(p0)
-                    for (location in p0.locations) {
+                    for (location in p0.locations) { //get the latitude and longitude
                         currentLocation = LatLng(location.latitude, location.longitude)
                     }
                 }
             }
-
             LukittulemmikkiTheme {
-                // A surface container using the 'background' color from the theme
+                //A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
-                ) {
+                ) { //Location Screen needs context, the current LatLng, Cameraposition and callback to Mainmenu
                     LocationScreen(this@Map, currentLocation, cameraPositionState, onButtonClick = {
                         val intent = Intent(this@Map, MainActivity::class.java)
                         startActivity(intent)
@@ -171,52 +159,42 @@ class Map : ComponentActivity() {
         }
     }
 
-
-
-
     @SuppressLint("UnrememberedMutableState")
     @Composable
     fun LocationScreen(context: Context, currentLocation: LatLng, cameraPositionState: CameraPositionState, onButtonClick: () -> Unit) {
 
+        val preferencesManager = PreferencesManager(context) //Preferencesmanager
+        val contexti = LocalContext.current //Context for some reason had to be declared differently here
+        val sensorManager = contexti.getSystemService(Context.SENSOR_SERVICE) as SensorManager //Sensors
+        val stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) //Sensors
+        val sessionSteps = remember { mutableStateOf(0) } //Sessionsteps to be reset all the time
+        var totalSteps = preferencesManager.getSteps() //Totals steps from preferencesManager
 
-        val preferencesManager = PreferencesManager(context)
-
-        val contexti = LocalContext.current
-        val sensorManager = contexti.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        val stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
-
-        val sessionSteps = remember { mutableStateOf(0) }
-        var totalSteps = preferencesManager.getSteps()
-
-
+        //Sensor functionality
         val sensorEventListener = remember {
             object : SensorEventListener {
-                override fun onSensorChanged(event: SensorEvent) {
-                    if (event.sensor == stepSensor) {
-
+                override fun onSensorChanged(event: SensorEvent) { //Everytime the state of a sensor changes
+                    if (event.sensor == stepSensor) { //If the sensor changing is step sensor
+                        //Old accurate version, but stores every value
                         //val stepCount = event.values[0].toInt()
-                        //Log.d("StepCounter", "Step Count: $stepCount")
-
-                        totalSteps += 1
+                        totalSteps += 1 //Add to steps
                         sessionSteps.value += 1
-                        preferencesManager.saveSteps(totalSteps)
-
+                        preferencesManager.saveSteps(totalSteps) //Save the steps
                     }
                 }
-
                 override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-                    // Not used
+                    //Not used but has to exist
                 }
             }
         }
 
         DisposableEffect(Unit) {
-            //sensorManager.registerListener( sensorEventListener, stepSensor, SensorManager.SENSOR_DELAY_FASTEST )
-            onDispose {
+            onDispose { //When composable is shutdown, the sensor gets unregistered(doesn't count steps anymore)
                 sensorManager.unregisterListener(sensorEventListener)
             }
         }
 
+        //Check for all required permissions
         val launchMultiplePermissions = rememberLauncherForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()) {
                 permissionMaps ->
@@ -225,36 +203,28 @@ class Map : ComponentActivity() {
                 locationRequired = true
                 startLocationUpdates()
                 Toast.makeText(context, "Permission Granted!", Toast.LENGTH_SHORT).show()
-            }
-            else
+            } else
             {
                 Toast.makeText(context, "Permission Denied!", Toast.LENGTH_SHORT).show()
             }
         }
 
-        if (permission.all {
-                ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
-            })
-
-        {
-            // get location
+        if (permission.all { ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED })
+        { //get location if everything is granted
             startLocationUpdates()
-        }
-        else
-        {
+        } else
+        { //Ask for permissions again if not granted
             launchMultiplePermissions.launch(permission)
         }
-
         Box(modifier = Modifier.fillMaxSize()) {
-            GoogleMap(
+            GoogleMap( //Google map function to display the map
                 modifier = Modifier.fillMaxSize(),
-                googleMapOptionsFactory = { GoogleMapOptions().mapType(3) },
-                uiSettings = MapUiSettings(zoomControlsEnabled = false, compassEnabled = false),
-                cameraPositionState = rememberCameraPositionState{
+                uiSettings = MapUiSettings(zoomControlsEnabled = false, compassEnabled = false), //Disable zoom controls and the compass
+                cameraPositionState = rememberCameraPositionState{ //At first show Oulu location, with a zoom of 11f
                     position = CameraPosition.fromLatLngZoom(LatLng(65.0142,25.4719),11f)
                 },
                 ) {
-                Marker(
+                Marker( //Marker to show users current location
                     state = MarkerState(
                         position = currentLocation
                     ),
@@ -265,7 +235,7 @@ class Map : ComponentActivity() {
             Row(
                 modifier = Modifier.fillMaxWidth(),
             ){
-                BackButton (onClick = {
+                BackButton (onClick = { //Backbutton funtion to mainMenu, also disables stepcounter
                     onButtonClick()
                     sensorManager.unregisterListener(sensorEventListener)
                     Toast.makeText(contexti, "Step counter stopped", Toast.LENGTH_SHORT).show()
@@ -278,42 +248,37 @@ class Map : ComponentActivity() {
                 horizontalAlignment = Alignment.CenterHorizontally
 
             ){
-
-
-                //Text(text = "${currentLocation.latitude}/${currentLocation.longitude}")
-Row (
+                Row (
     horizontalArrangement = Arrangement.spacedBy(4.dp)
 ){
-    Button(onClick = {
-        sessionSteps.value = -1
+    Button(onClick = {  //Start the step sensor and count for SessionSteps
+        sessionSteps.value = -1 //Restarts sessionsteps back to 0, (-1 because it is a sensor event which adds +1)
         sensorManager.registerListener(
             sensorEventListener,
             stepSensor,
-            SensorManager.SENSOR_DELAY_GAME
+            SensorManager.SENSOR_DELAY_GAME //Sensor delay suitable for games
         )
         Toast.makeText(contexti, "Step counter started", Toast.LENGTH_SHORT).show()
     }) {
         Text(text = "Start Activity")
     }
-    Button(onClick = {
+    Button(onClick = { //Stop step sensor
         sensorManager.unregisterListener(sensorEventListener)
         Toast.makeText(contexti, "Step counter stopped", Toast.LENGTH_SHORT).show()
     }) {
         Text(text = "Stop Activity")
     }
 }
-                totalSteps = preferencesManager.getSteps()
-                Box(
+                totalSteps = preferencesManager.getSteps() //Get total steps
+                Box( //Pop out the texts a little more against the background
                     modifier = Modifier
                         .padding(4.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .background(Color.LightGray)
                         .padding(2.dp)
-                ) {
+                ) {//Displaying sessionsteps
                     Text(text = "Activity steps: ${sessionSteps.value}")
                 }
-
-                // Background shape for the texts
                 Box(
                     modifier = Modifier
                         .padding(2.dp)
@@ -321,39 +286,32 @@ Row (
                         .background(Color.LightGray)
                         .padding(2.dp)
 
-                ) {
+                ) {//Displaying totalsteps
                     Text(text = "Total Steps: ${totalSteps}")
                 }
-
-
+                //Player progress vvv
                 var money = preferencesManager.getMoney()
                 var level = preferencesManager.getLevel()
                 var totalStepsAtLevelStart = preferencesManager.getTotalStepsAtLevelStart()
-                Log.d("Progress", "Total steps at level start: $totalStepsAtLevelStart")
-
-
-
                 val progress = derivedStateOf {
+                    //How many steps player has when they get level, always counting from "0"
                     val stepsInCurrentLevel = totalSteps - totalStepsAtLevelStart
                     // Calculate progress based on steps. Adjust the calculation as needed.
-                    stepsInCurrentLevel.toFloat() / 50
+                    stepsInCurrentLevel.toFloat() / 50//Counts 1 steps as 2 for progress
                 }
-//OO MY GOD
-                LaunchedEffect(progress.value) {
-                    if (progress.value >= 1.0f) {
+                LaunchedEffect(progress.value) { //when progress.value is changed, it updates to UI
+                    if (progress.value >= 1.0f) { //when players progress reaches 100
                         Toast.makeText(contexti, "Level up! + 1000$ earned", Toast.LENGTH_SHORT).show()
-
-                        Log.d("Progress", "Level up! ${progress.value}")
-                        level++
-                        money += 1000
-                        totalStepsAtLevelStart = totalSteps
+                        level++ //Level up
+                        money += 1000 //Gain currency
+                        totalStepsAtLevelStart = totalSteps //Update the totalStepsAtLevelStart
                         preferencesManager.saveTotalStepsAtLevelStart(totalStepsAtLevelStart)
-                        preferencesManager.saveMoney(money)
+                        preferencesManager.saveMoney(money)//Update money
                     }
-                    preferencesManager.saveProgress(progress.value)
-                    preferencesManager.saveLevel(level)
+                    preferencesManager.saveProgress(progress.value) //Save progress
+                    preferencesManager.saveLevel(level) //Save level
                 }
-                MyProgressBar(progress.value, level)
+                MyProgressBar(progress.value, level) //Progressbar function from Stats.kt
             }
         }
     }

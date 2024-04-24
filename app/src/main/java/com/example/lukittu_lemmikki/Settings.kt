@@ -27,10 +27,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun Settings(
+    //Declare the existing settings
     darkTheme: Boolean,
     onDarkThemeChange: (Boolean) -> Unit,
     selectedModel: String,
@@ -45,7 +45,7 @@ fun Settings(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(title = { Text(
+            CenterAlignedTopAppBar(title = { Text( //Title
                 text = "Settings",
                 color = MaterialTheme.colorScheme.onSurface) },
                 navigationIcon = {
@@ -55,7 +55,7 @@ fun Settings(
         content = {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    // Dark theme switch
+                    //Dark theme switch
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "Dark Theme",
@@ -65,7 +65,7 @@ fun Settings(
                             onCheckedChange = { isChecked ->
                                 onDarkThemeChange(isChecked)
                                 preferencesManager.saveDarkTheme(isChecked)
-                                if (isChecked) {
+                                if (isChecked) { //Switch back and forth between modes
                                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                                     Toast.makeText(context, "Dark theme enabled", Toast.LENGTH_SHORT).show()
                                 } else {
@@ -76,15 +76,14 @@ fun Settings(
                             }
                         )
                     }
-
-                    // Skinwalker mode switch
+                    //Skinwalker mode switch
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "Skinwalker Mode",
                             color = MaterialTheme.colorScheme.onSurface)
                         Switch(
                             checked = isSkinwalkerMode,
-                            onCheckedChange = { isChecked ->
+                            onCheckedChange = { isChecked -> //Switch back and forth between modes
                                 onSkinwalkerModeChange(isChecked)
                                 preferencesManager.saveSkinwalkerMode(isChecked)
                                 Toast.makeText(context, "Skinwalker mode ${if (isChecked) "enabled" else "disabled"}", Toast.LENGTH_SHORT).show()
@@ -92,7 +91,7 @@ fun Settings(
                         )
                     }
 
-                    // Reset preferences button
+                    //Button to reset every SharedPreference
                     Button(onClick = {
                         preferencesManager.reset()
                         onDarkThemeChange(false)
@@ -113,14 +112,13 @@ fun Settings(
     )
 }
 
-@Composable
+@Composable //Backbutton function to be used on every View
 fun BackButton(darkTheme: Boolean, onClick: () -> Unit) {
     val vectorDrawable: Painter = if (darkTheme) {
         painterResource(id = R.drawable.back_arrow_superior)
     } else {
         painterResource(id = R.drawable.back_arrow)
     }
-
     Image(
         painter = vectorDrawable,
         contentDescription = "Back",

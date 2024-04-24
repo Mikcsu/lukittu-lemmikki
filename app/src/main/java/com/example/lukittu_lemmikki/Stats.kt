@@ -20,14 +20,12 @@ fun MyProgressBar(progress: Float, level: Int) {
             .padding(16.dp)
     ) {
         Spacer(modifier = Modifier.weight(1f))
-
-        // Texts and Progress bar at the bottom
+        //Texts and Progress bar at the bottom of the screen
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
-
             Box(
                 modifier = Modifier
                     .padding(2.dp)
@@ -54,7 +52,7 @@ fun MyProgressBar(progress: Float, level: Int) {
                     color = Color.Black
                 )
             }
-            LinearProgressIndicator(
+            LinearProgressIndicator( //Progressbar function
                 progress = progress,
                 color = Color.Red,
                 modifier = Modifier
